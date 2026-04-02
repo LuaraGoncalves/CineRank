@@ -1,0 +1,243 @@
+main {
+    flex: 1;
+    padding: 2rem 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    main {
+        padding: 3rem 4rem;
+    }
+}
+
+section {
+    margin-bottom: 3rem;
+}
+
+header {
+    background-color: var(--secondary-color);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    border-bottom: 2px solid var(--text-color);
+}
+
+@media (min-width: 768px) {
+    header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        text-align: left;
+    }
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap; 
+    width: 100%;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .header-actions {
+        width: auto;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+    }
+}
+
+.header-actions .search-container {
+    margin-bottom: 0;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center; 
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+    nav {
+        flex-wrap: nowrap;
+        margin-top: 0;
+        gap: 0;
+    }
+}
+
+nav a {
+    color: var(--text-light);
+    text-decoration: none;
+    margin-left: 0; /* Mobile first */
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding-bottom: 0.3rem;
+}
+
+@media (min-width: 768px) {
+    nav a {
+        margin-left: 1.5rem;
+    }
+}
+
+nav a:hover {
+    color: var(--text-color);
+}
+
+nav a.active {
+    color: var(--text-color);
+    border-bottom: 2px solid var(--text-color);
+}
+
+.footer {
+    background-color: var(--secondary-color);
+    border-top: 1px solid var(--accent-color);
+    margin-top: 3rem;
+    padding: 3rem 2rem;
+    font-size: 0.9rem;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center; 
+    gap: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    .footer-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        text-align: left;
+        gap: 2rem;
+    }
+}
+
+.footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.footer-brand h3 {
+    font-family: "Poiret One", sans-serif;
+    font-size: 1.5rem;
+    margin: 0;
+    color: var(--text-color);
+    letter-spacing: 1px;
+}
+
+.footer-brand p {
+    margin: 0;
+    color: var(--text-light);
+    opacity: 0.7;
+    font-size: 0.8rem;
+}
+
+.footer-social {
+    align-items: center;
+}
+
+.footer-social span {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-top: 0.3rem;
+}
+
+.footer-icon {
+    color: var(--text-light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.05);
+    transition: background-color 0.3s, color 0.3s, transform 0.2s;
+}
+
+.footer-icon svg {
+    color: currentColor;
+    transition: color 0.3s;
+}
+
+.footer-icon:hover {
+    color: var(--primary-color);
+    background-color: var(--text-color);
+    transform: translateY(-3px);
+}
+
+body.light-mode .footer-icon {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .footer-icon:hover {
+    background-color: var(--text-color);
+    color: white;
+}
+
+.footer-credits {
+    align-items: flex-end;
+    justify-content: flex-end;
+    height: 100%;
+}
+
+.footer-credits p {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    opacity: 0.9;
+    margin: 0;
+}
+
+.footer-credits strong {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+@media (min-width: 768px) {
+    .footer-brand, .footer-social, .footer-credits {
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+
+    .footer-credits {
+        align-items: flex-end;
+        justify-content: flex-end;
+    }
+}
+
+h1 {
+    font-size: 2.5rem; /* Mobile first */
+    padding-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+    h1 {
+        font-size: 3.5rem;
+        padding-bottom: 0;
+    }
+}

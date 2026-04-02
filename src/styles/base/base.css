@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Poiret+One&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    /* --- Colors: Primitive --- */
+    --color-slate-900: #0A1828;
+    --color-slate-800: #0f3460;
+    --color-slate-100: #f0f0f0;
+    --color-gold-500: #BFA181;
+    --color-teal-500: #178582;
+    --color-white: #ffffff;
+    --color-gray-100: #f5f5f5;
+    --color-gray-300: #dcdcdc;
+    --color-gray-800: #333333;
+
+    --primary-color: var(--color-slate-900);
+    --secondary-color: var(--color-slate-900);
+    --accent-color: var(--color-slate-800);
+    --text-color: var(--color-gold-500); 
+    --text-light: var(--color-slate-100);
+    --bg-overlay: rgba(10, 24, 40, 0.8);
+    --card-bg: var(--color-slate-900);
+    
+    /* --- Typography --- */
+    --font-sans: "Inter", sans-serif;
+    --font-heading: "Poiret One", sans-serif;
+    
+    --text-xs: 0.75rem;     /* 12px */
+    --text-sm: 0.875rem;    /* 14px */
+    --text-base: 1rem;      /* 16px */
+    --text-lg: 1.125rem;    /* 18px */
+    --text-xl: 1.25rem;     /* 20px */
+    --text-2xl: 1.5rem;     /* 24px */
+    --text-3xl: 1.875rem;   /* 30px */
+    --text-4xl: 2.25rem;    /* 36px */
+    --text-5xl: 3.5rem;     /* 56px */
+
+    --font-light: 300;
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+
+    /* --- Spacing --- */
+    --spacing-1: 0.25rem;   /* 4px */
+    --spacing-2: 0.5rem;    /* 8px */
+    --spacing-3: 0.75rem;   /* 12px */
+    --spacing-4: 1rem;      /* 16px */
+    --spacing-5: 1.25rem;   /* 20px */
+    --spacing-6: 1.5rem;    /* 24px */
+    --spacing-8: 2rem;      /* 32px */
+    --spacing-10: 2.5rem;   /* 40px */
+    --spacing-12: 3rem;     /* 48px */
+    --spacing-16: 4rem;     /* 64px */
+
+    /* --- Border Radius --- */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+
+    /* --- Shadows --- */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    /* --- Z-index --- */
+    --z-10: 10;
+    --z-20: 20;
+    --z-30: 30;
+    --z-40: 40;
+    --z-50: 50;
+    --z-modal: 1000;
+
+    /* --- Transitions --- */
+    --transition-fast: 150ms ease-in-out;
+    --transition-base: 300ms ease-in-out;
+}
+
+body.light-mode {
+    --primary-color: var(--color-white);
+    --secondary-color: var(--color-gray-100);
+    --accent-color: var(--color-gray-300);
+    --text-color: var(--color-teal-500);
+    --text-light: var(--color-gray-800);
+    --bg-overlay: rgba(255, 255, 255, 0.9);
+    --card-bg: var(--color-white);
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('../../assets/images/fundo.webp') no-repeat center center fixed;
+    background-size: cover;
+    color: var(--text-light);
+    line-height: 1.6;
+    transition: color var(--transition-base), background-color var(--transition-base);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-color);
+    font-family: var(--font-heading);
+    font-weight: var(--font-semibold);
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: var(--text-5xl);
+    margin-bottom: var(--spacing-8);
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+h2 {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--spacing-6);
+    padding-bottom: 0;
+}
+
+a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: opacity var(--transition-fast);
+}
+
+a:hover {
+    opacity: 0.8;
+}
+
+button {
+    font-family: var(--font-sans);
+}
