@@ -47,9 +47,10 @@ O sistema foi desenhado com uma **Arquitetura Baseada em Funcionalidades (Featur
 - **Lazy Loading Nativo de Imagens**: O uso do atributo `loading="lazy"` nas capas dos filmes poupa banda massivamente nas listagens longas.
 - **Debounce**: Prevenção de gargalos de rede através de *Debounce* customizado ao digitar na barra de pesquisa.
 
-### Client HTTP Profissional
+### Client HTTP Profissional e Serverless BFF
 - A camada de rede não usa o Fetch solto nem bibliotecas pesadas como o *Axios*.
 - Criei uma classe genérica (`src/core/http.js`) que implementa **Interceptors de Request e Response**. Graças a isso, a tratativa de erros globais com Toasts de notificação é feita centralmente em apenas um lugar, desacoplando a UI da infraestrutura HTTP.
+- **Backend-for-Frontend (Serverless)**: Como a `NewsAPI` bloqueia requisições em ambiente client-side (CORS/segurança de API Key), implementamos um backend leve usando as **Netlify Functions** (`netlify/functions/news.js`). O Client consome apenas a nossa rota proxy interna, e a nossa Lambda trata a segurança e injeção da secret key longe do front-end!
 
 ### CSS System (Mobile-First)
 - **Zero Frameworks de CSS**: Nada de Bootstrap ou Tailwind! Mas as melhores práticas estão aqui.

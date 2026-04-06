@@ -49,8 +49,7 @@ self.addEventListener('fetch', (event) => {
     // Ignorar requisições internas do servidor de dev do Vite para não quebrar o HMR
     if (url.pathname.includes('@vite') || url.pathname.includes('.vite')) return;
 
-    // NetworkFirst para requisições na API externa
-    if (url.origin === 'https://api.themoviedb.org' || url.origin === 'https://newsapi.org') {
+    if (url.origin === 'https://api.themoviedb.org' || url.origin === 'https://newsapi.org' || url.pathname.includes('/.netlify/functions/')) {
         event.respondWith(
             fetch(event.request)
                 .then(response => {

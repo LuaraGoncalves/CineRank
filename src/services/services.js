@@ -3,10 +3,7 @@ import { request } from '../core/http.js';
 
 export const NewsAPI = {
     async fetchNews() {
-        const query = config.newsApi.query;
-        const domains = config.newsApi.domains;
-        const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&domains=${domains}&sortBy=publishedAt&apiKey=${config.newsApi.apiKey}`;
-
+        const url = config.newsApi.baseUrl;
         return await request(url);
     }
 };
