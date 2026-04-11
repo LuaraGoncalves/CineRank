@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "devDependencies": {
@@ -18,5 +18,10 @@
   "jest": {
     "transform": {},
     "testEnvironment": "jsdom"
+  },
+  "dependencies": {
+    "next": "^16.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   }
 }
