@@ -12,6 +12,7 @@ export default function Header() {
   const [results, setResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false);
   const searchRef = useRef(null);
   const router = useRouter();
 
@@ -19,6 +20,7 @@ export default function Header() {
     function handleClickOutside(event) {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowResults(false);
+        setIsSearchActive(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -72,7 +74,7 @@ export default function Header() {
         <Link href="/trailers" aria-label="Ir para a sessão de Trailers em Destaque">Trailers</Link>
       </nav>
       <div className="header-actions">
-        <div className="search-container" id="main-search-container" style={{ position: 'relative' }} ref={searchRef}>
+        <div className={`search-container ${isSearchActive ? 'active' : ''}`} id="main-search-container" style={{ position: 'relative' }} ref={searchRef}>
           <input 
             type="text" 
             id="search-input" 
@@ -85,7 +87,16 @@ export default function Header() {
               if (query.trim().length > 2) setShowResults(true);
             }}
           />
-          <button id="search-button" aria-label="Pesquisar">
+          <button 
+            id="search-button" 
+            aria-label="Pesquisar" 
+            onClick={() => {
+              setIsSearchActive(!isSearchActive);
+              if (!isSearchActive) {
+                setTimeout(() => document.getElementById('search-input')?.focus(), 100);
+              }
+            }}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           </button>
           
