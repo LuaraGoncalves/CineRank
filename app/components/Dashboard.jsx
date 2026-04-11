@@ -114,7 +114,7 @@ export default function Dashboard({ initialMovies }) {
           value={filters.genre} 
           onChange={(val) => handleFilterChange({ target: { name: 'genre', value: val }})}
           options={[
-            { value: 'all', label: 'Qualquer Gênero' },
+            { value: 'all', label: 'Gênero' },
             ...genres.map(g => ({ value: g.id.toString(), label: g.name }))
           ]}
         />
@@ -124,7 +124,7 @@ export default function Dashboard({ initialMovies }) {
           value={filters.year} 
           onChange={(val) => handleFilterChange({ target: { name: 'year', value: val }})}
           options={[
-            { value: 'all', label: 'Qualquer Ano' },
+            { value: 'all', label: 'Ano' },
             ...years.map(y => ({ value: y.toString(), label: y.toString() }))
           ]}
         />
@@ -134,7 +134,7 @@ export default function Dashboard({ initialMovies }) {
           value={filters.rating} 
           onChange={(val) => handleFilterChange({ target: { name: 'rating', value: val }})}
           options={[
-            { value: 'all', label: 'Qualquer Classificação' },
+            { value: 'all', label: 'Classificação' },
             { value: '8', label: '8+' },
             { value: '7', label: '7+' },
             { value: '6', label: '6+' },
@@ -145,7 +145,6 @@ export default function Dashboard({ initialMovies }) {
       
       <div id="movie-container" className="movie-container" role="region" aria-label="Lista de Filmes e Séries Encontrados" aria-live="polite">
         {loading ? (
-          // Exibe 10 Skeletons durante o carregamento inicial dos filtros
           Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)
         ) : movies.length > 0 ? (
           <>
