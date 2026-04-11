@@ -1,5 +1,22 @@
 "use server";
 
+export async function searchMulti(query = '') {
+  try {
+    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
+    if (!apiKey || !query) return [];
+    
+    const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&language=pt-BR&query=${encodeURIComponent(query)}&page=1`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    
+    const data = await res.json();
+    return data.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv').slice(0, 5);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 export async function fetchFilteredMovies({ type = 'all', genre = 'all', year = 'all', rating = 'all', page = 1 } = {}) {
   try {
     const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY; 
