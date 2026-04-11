@@ -47,7 +47,9 @@ export default function CustomSelect({ options, value, onChange, disabled }) {
           alignItems: 'center'
         }}
       >
-        <span>{selectedOption?.label}</span>
+        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '8px' }}>
+          {selectedOption?.label}
+        </span>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>
           <path d="m6 9 6 6 6-6"/>
         </svg>
