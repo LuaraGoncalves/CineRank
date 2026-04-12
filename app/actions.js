@@ -156,24 +156,170 @@ export async function fetchPopularMoviesForQuiz() {
   }
 }
 
-export async function fetchNews() {
-  try {
-    const apiKey = process.env.NEWS_API_KEY || process.env.VITE_NEWS_API_KEY;
-    if (!apiKey) {
-      console.warn("Chave da API de Notícias ausente no .env");
-      return [];
-    }
-    
-   
-    const url = `https://newsapi.org/v2/top-headlines?country=br&category=entertainment&apiKey=${apiKey}`;
+import Parser from 'rss-parser';
 
-    const response = await fetch(url, { cache: 'no-store', next: { revalidate: 0 } });
-    if (!response.ok) return [];
-    
-    const data = await response.json();
-    return data.articles ? data.articles.slice(0, 15) : [];
-  } catch (error) {
-    console.error("Erro ao buscar notícias:", error);
-    return [];
+const FEATURE_FLAGS = {
+  USE_GOOGLE_NEWS: true,
+  USE_NEWSAPI_FALLBACK: true,
+  ALLOWED_SOURCES: {
+    'Omelete': true,
+    'AdoroCinema': true,
+    'Jovem Nerd': true,
+    'IGN Brasil': true,
+    'Collider': true,
+    'Variety': true
   }
+};
+
+const logger = {
+  info: (event, details = {}) => {
+    console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'INFO', event, ...details }));
+  },
+  error: (event, error, details = {}) => {
+    console.error(JSON.stringify({ timestamp: new Date().toISOString(), level: 'ERROR', event, error: error?.message || String(error), ...details }));
+  },
+  warn: (event, details = {}) => {
+    console.warn(JSON.stringify({ timestamp: new Date().toISOString(), level: 'WARN', event, ...details }));
+  }
+};
+let newsCache = {
+  data: null,
+  lastFetch: 0
+};
+const CACHE_TTL_MS = 10 * 60 * 1000; 
+
+function cleanHtmlTags(str) {
+  if (!str) return '';
+  return str.replace(/<\/?[^>]+(>|$)/g, "").trim();
+}
+
+export async function fetchNews() {
+  const now = Date.now();
+  if (newsCache.data && (now - newsCache.lastFetch < CACHE_TTL_MS)) {
+    logger.info('Cache_Hit', { source: 'in-memory', age_seconds: Math.round((now - newsCache.lastFetch) / 1000) });
+    return newsCache.data;
+  }
+
+  const parser = new Parser({ timeout: 5000 });
+  
+  const activeDomains = Object.entries(FEATURE_FLAGS.ALLOWED_SOURCES)
+    .filter(([_, isActive]) => isActive)
+    .map(([source]) => {
+      const mapping = {
+        'Omelete': 'omelete.com.br',
+        'AdoroCinema': 'adorocinema.com',
+        'Jovem Nerd': 'jovemnerd.com.br',
+        'IGN Brasil': 'br.ign.com',
+        'Collider': 'collider.com',
+        'Variety': 'variety.com'
+      };
+      return `site:${mapping[source] || source}`;
+    }).join(' OR ');
+
+  const feedUrls = [];
+  if (FEATURE_FLAGS.USE_GOOGLE_NEWS) {
+    if (activeDomains) {
+      feedUrls.push(`https://news.google.com/rss/search?q=${encodeURIComponent(activeDomains)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`);
+    }
+    feedUrls.push(`https://news.google.com/rss/search?q=${encodeURIComponent('filme OR série OR cinema')}&hl=pt-BR&gl=BR&ceid=BR:pt-419`);
+  }
+
+  for (let i = 0; i < feedUrls.length; i++) {
+    const url = feedUrls[i];
+    try {
+      logger.info('Fetch_RSS_Attempt', { step: i + 1, is_fallback: i > 0 });
+      
+      const feed = await parser.parseURL(url);
+      
+      if (!feed || !feed.items || feed.items.length === 0) {
+        logger.warn('Fetch_RSS_Empty', { url });
+        continue;
+      }
+      
+      const articles = feed.items.map(item => {
+        let sourceName = 'Desconhecida';
+        let cleanTitle = item.title || 'Sem título';
+        
+        const lastDashIndex = cleanTitle.lastIndexOf('-');
+        if (lastDashIndex > 0) {
+          const extractedSource = cleanTitle.substring(lastDashIndex + 1).trim();
+          cleanTitle = cleanTitle.substring(0, lastDashIndex).trim();
+          
+          const matchedSource = Object.keys(FEATURE_FLAGS.ALLOWED_SOURCES).find(
+            allowed => extractedSource.toLowerCase().includes(allowed.toLowerCase())
+          );
+          
+          sourceName = matchedSource || extractedSource;
+        }
+
+        let normalizedDate = new Date().toISOString();
+        if (item.isoDate || item.pubDate) {
+          const parsedDate = new Date(item.isoDate || item.pubDate);
+          if (!isNaN(parsedDate.getTime())) normalizedDate = parsedDate.toISOString();
+        }
+
+        let normalizedDesc = cleanHtmlTags(item.contentSnippet || item.content || '');
+        if (normalizedDesc.length > 150) normalizedDesc = normalizedDesc.substring(0, 147) + '...';
+
+        return {
+          title: cleanTitle,
+          url: item.link || '',
+          description: normalizedDesc,
+          publishedAt: normalizedDate,
+          source: { name: sourceName }
+        };
+      });
+
+      if (articles.length > 0) {
+        const finalArticles = articles.slice(0, 15);
+        newsCache = { data: finalArticles, lastFetch: now };
+        logger.info('Fetch_RSS_Success', { count: finalArticles.length });
+        return finalArticles;
+      }
+    } catch (error) {
+      logger.error('Fetch_RSS_Error', error, { step: i + 1, url });
+    }
+  }
+
+  if (FEATURE_FLAGS.USE_NEWSAPI_FALLBACK) {
+    try {
+      logger.info('Fetch_NewsAPI_Fallback_Started');
+      const apiKey = process.env.NEWS_API_KEY || process.env.VITE_NEWS_API_KEY;
+      if (apiKey) {
+        const query = '(filme OR série OR movie OR series OR anime OR cinema)';
+        const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&apiKey=${apiKey}`;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch(newsApiUrl, { 
+          cache: 'no-store', 
+          signal: controller.signal 
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.articles && data.articles.length > 0) {
+            const fallbackArticles = data.articles.map(item => ({
+              title: item.title || 'Sem título',
+              url: item.url || '',
+              description: cleanHtmlTags(item.description || ''),
+              publishedAt: item.publishedAt || new Date().toISOString(),
+              source: { name: item.source?.name || 'NewsAPI Fallback' }
+            })).slice(0, 15);
+
+            newsCache = { data: fallbackArticles, lastFetch: now };
+            logger.info('Fetch_NewsAPI_Fallback_Success', { count: fallbackArticles.length });
+            return fallbackArticles;
+          }
+        }
+      }
+    } catch (apiError) {
+      logger.error("Fetch_NewsAPI_Fallback_FatalError", apiError);
+    }
+  }
+
+  logger.warn('All_News_Sources_Failed_Returning_Empty');
+  return [];
 }
