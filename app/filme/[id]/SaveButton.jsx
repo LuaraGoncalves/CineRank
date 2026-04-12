@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { toggleWatchlist, getWatchlist } from '../../actions';
 
 export default function SaveButton({ movie }) {
   const [loading, setLoading] = useState(true);
@@ -9,12 +8,14 @@ export default function SaveButton({ movie }) {
   const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
-    async function checkWatchlist() {
-      const watchlist = await getWatchlist();
-      setIsSaved(watchlist.some(m => m.id === movie.id));
-      setLoading(false);
+    const stored = localStorage.getItem('cinerank_watchlist');
+    if (stored) {
+      try {
+        const watchlist = JSON.parse(stored);
+        setIsSaved(watchlist.some(m => m.id === movie.id));
+      } catch (e) {}
     }
-    checkWatchlist();
+    setLoading(false);
   }, [movie.id]);
 
   const showToast = (message) => {
@@ -24,7 +25,7 @@ export default function SaveButton({ movie }) {
     }, 3000);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     setLoading(true);
     
     const movieData = {
@@ -36,19 +37,34 @@ export default function SaveButton({ movie }) {
       release_date: movie.release_date || null,
       first_air_date: movie.first_air_date || null,
     };
-    const result = await toggleWatchlist(movieData);
     
-    if (result.success) {
-      setIsSaved(result.isAdded);
-      if (result.isAdded) {
+    try {
+      const stored = localStorage.getItem('cinerank_watchlist');
+      let watchlist = stored ? JSON.parse(stored) : [];
+      
+      const exists = watchlist.find(m => m.id === movie.id);
+      let isAdded = false;
+
+      if (exists) {
+        watchlist = watchlist.filter(m => m.id !== movie.id);
+      } else {
+        watchlist.push(movieData);
+        isAdded = true;
+      }
+      
+      localStorage.setItem('cinerank_watchlist', JSON.stringify(watchlist));
+      
+      setIsSaved(isAdded);
+      if (isAdded) {
         showToast('Adicionado aos favoritos!');
       } else {
         showToast('Removido dos favoritos!');
       }
-    } else {
-      showToast('Erro ao salvar: ' + (result.error || 'Falha na conexão'));
-      console.error(result.error);
+    } catch (error) {
+      showToast('Erro ao salvar no dispositivo');
+      console.error(error);
     }
+    
     setLoading(false);
   };
 

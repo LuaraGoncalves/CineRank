@@ -156,54 +156,6 @@ export async function fetchPopularMoviesForQuiz() {
   }
 }
 
-import fs from 'fs/promises';
-import path from 'path';
-
-const dbPath = path.join(process.cwd(), 'watchlist.json');
-
-async function initDB() {
-  try {
-    await fs.access(dbPath);
-  } catch {
-    await fs.writeFile(dbPath, JSON.stringify([]));
-  }
-}
-
-export async function getWatchlist() {
-  try {
-    await initDB();
-    const data = await fs.readFile(dbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Erro ao ler watchlist:", error);
-    return [];
-  }
-}
-
-export async function toggleWatchlist(movie) {
-  try {
-    await initDB();
-    const data = await fs.readFile(dbPath, 'utf-8');
-    let watchlist = JSON.parse(data);
-    
-    const exists = watchlist.find(m => m.id === movie.id);
-    let isAdded = false;
-
-    if (exists) {
-      watchlist = watchlist.filter(m => m.id !== movie.id);
-    } else {
-      watchlist.push(movie);
-      isAdded = true;
-    }
-
-    await fs.writeFile(dbPath, JSON.stringify(watchlist, null, 2));
-    return { success: true, isAdded };
-  } catch (error) {
-    console.error("Erro ao modificar watchlist:", error);
-    return { success: false, error: error.message || "Erro desconhecido", stack: error.stack };
-  }
-}
-
 export async function fetchNews() {
   try {
     const apiKey = process.env.NEWS_API_KEY || process.env.VITE_NEWS_API_KEY;
