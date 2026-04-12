@@ -145,9 +145,17 @@ body.light-mode svg.icon {
     background-color: var(--primary-color);
 }
 
+.custom-select-wrapper {
+    width: 100%;
+}
+
 @media (min-width: 768px) {
-    .search-container.active #search-input {
-        width: 220px;
+    .custom-select-wrapper {
+        width: 200px;
+    }
+
+    .custom-select {
+        width: 200px;
     }
 }
 

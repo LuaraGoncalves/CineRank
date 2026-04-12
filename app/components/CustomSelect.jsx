@@ -26,9 +26,9 @@ export default function CustomSelect({ options, value, onChange, disabled }) {
   return (
     <div 
       ref={containerRef} 
+      className="custom-select-wrapper"
       style={{ 
         position: 'relative', 
-        width: '200px', 
         opacity: disabled ? 0.5 : 1, 
         pointerEvents: disabled ? 'none' : 'auto' 
       }}

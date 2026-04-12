@@ -30,10 +30,10 @@ export default async function FilmeDetails({ params, searchParams }) {
         <img 
           src={posterPath} 
           alt={details.title || details.name} 
-          style={{ width: '300px', borderRadius: '8px', boxShadow: 'var(--shadow-lg)' }} 
+          style={{ width: '100%', maxWidth: '300px', borderRadius: '8px', boxShadow: 'var(--shadow-lg)' }} 
         />
         
-        <div style={{ flex: 1, minWidth: '300px' }}>
+        <div style={{ flex: 1, minWidth: 'min(100%, 300px)' }}>
           <h1 style={{ marginBottom: '1rem', textAlign: 'left' }}>{details.title || details.name}</h1>
           <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>⭐ {details.vote_average?.toFixed(1)}/10</p>
           
