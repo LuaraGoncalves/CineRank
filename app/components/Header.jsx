@@ -104,15 +104,16 @@ export default function Header() {
             <div style={{
               position: 'absolute',
               top: '100%',
-              left: 0,
               right: 0,
+              width: '300px',
+              maxWidth: '90vw',
               background: 'var(--card-bg)',
               border: '1px solid #444',
               borderRadius: '4px',
-              marginTop: '5px',
+              marginTop: '15px',
               zIndex: 1000,
-              boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-              maxHeight: '300px',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+              maxHeight: '350px',
               overflowY: 'auto'
             }}>
               {isSearching ? (
