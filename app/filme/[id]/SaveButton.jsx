@@ -46,7 +46,8 @@ export default function SaveButton({ movie }) {
         showToast('Removido dos favoritos!');
       }
     } else {
-      showToast('Erro ao salvar.');
+      showToast('Erro ao salvar: ' + (result.error || 'Falha na conexão'));
+      console.error(result.error);
     }
     setLoading(false);
   };
