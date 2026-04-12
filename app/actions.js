@@ -107,11 +107,15 @@ export async function fetchTrendingTrailers(query = '') {
     
     const trailerPromises = data.results.slice(0, 10).map(async (movie) => {
       try {
-        const videoUrl = `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}`;
+        const videoUrl = `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}&language=pt-BR&include_video_language=pt-BR,en,en-US`;
         const videoRes = await fetch(videoUrl);
         if (!videoRes.ok) return null;
         const videoData = await videoRes.json();
-        const trailerRaw = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+        
+        let trailerRaw = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+        if (!trailerRaw) {
+          trailerRaw = videoData.results.find(v => (v.type === 'Teaser' || v.type === 'Clip') && v.site === 'YouTube');
+        }
         
         if (!trailerRaw) return null;
         
@@ -149,54 +153,6 @@ export async function fetchPopularMoviesForQuiz() {
   } catch (error) {
     console.error(error);
     return [];
-  }
-}
-
-import fs from 'fs/promises';
-import path from 'path';
-
-const dbPath = path.join(process.cwd(), 'watchlist.json');
-
-async function initDB() {
-  try {
-    await fs.access(dbPath);
-  } catch {
-    await fs.writeFile(dbPath, JSON.stringify([]));
-  }
-}
-
-export async function getWatchlist() {
-  try {
-    await initDB();
-    const data = await fs.readFile(dbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Erro ao ler watchlist:", error);
-    return [];
-  }
-}
-
-export async function toggleWatchlist(movie) {
-  try {
-    await initDB();
-    const data = await fs.readFile(dbPath, 'utf-8');
-    let watchlist = JSON.parse(data);
-    
-    const exists = watchlist.find(m => m.id === movie.id);
-    let isAdded = false;
-
-    if (exists) {
-      watchlist = watchlist.filter(m => m.id !== movie.id);
-    } else {
-      watchlist.push(movie);
-      isAdded = true;
-    }
-
-    await fs.writeFile(dbPath, JSON.stringify(watchlist, null, 2));
-    return { success: true, isAdded };
-  } catch (error) {
-    console.error("Erro ao modificar watchlist:", error);
-    return { success: false, error: error.message || "Erro desconhecido", stack: error.stack };
   }
 }
 
