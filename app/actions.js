@@ -271,7 +271,7 @@ export async function fetchNews() {
       });
 
       if (articles.length > 0) {
-        const finalArticles = articles.slice(0, 15);
+        const finalArticles = articles.slice(0, 30);
         newsCache = { data: finalArticles, lastFetch: now };
         logger.info('Fetch_RSS_Success', { count: finalArticles.length });
         return finalArticles;
@@ -300,16 +300,16 @@ export async function fetchNews() {
 
         if (response.ok) {
           const data = await response.json();
-          if (data.articles && data.articles.length > 0) {
-            const fallbackArticles = data.articles.map(item => ({
-              title: item.title || 'Sem título',
-              url: item.url || '',
-              description: cleanHtmlTags(item.description || ''),
-              publishedAt: item.publishedAt || new Date().toISOString(),
-              source: { name: item.source?.name || 'NewsAPI Fallback' }
-            })).slice(0, 15);
+            if (data.articles && data.articles.length > 0) {
+              const fallbackArticles = data.articles.map(item => ({
+                title: item.title || 'Sem título',
+                url: item.url || '',
+                description: cleanHtmlTags(item.description || ''),
+                publishedAt: item.publishedAt || new Date().toISOString(),
+                source: { name: item.source?.name || 'NewsAPI Fallback' }
+              })).slice(0, 30);
 
-            newsCache = { data: fallbackArticles, lastFetch: now };
+              newsCache = { data: fallbackArticles, lastFetch: now };
             logger.info('Fetch_NewsAPI_Fallback_Success', { count: fallbackArticles.length });
             return fallbackArticles;
           }
