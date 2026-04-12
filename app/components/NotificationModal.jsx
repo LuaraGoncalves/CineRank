@@ -7,6 +7,7 @@ export default function NotificationModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(8);
   const [hasUnread, setHasUnread] = useState(false);
   const [translations, setTranslations] = useState({});
   const containerRef = useRef(null);
@@ -119,36 +120,59 @@ export default function NotificationModal() {
             <p style={{ textAlign: 'center' }}>Buscando notícias...</p>
           ) : news.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {news.map((article, i) => (
-                <div key={i} style={{ borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                    <a href={article.url} target="_blank" rel="noreferrer" style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.2rem', flex: 1, paddingRight: '8px' }}>
-                      {translations[i]?.title || article.title}
-                    </a>
-                    <button 
-                      onClick={(e) => { e.preventDefault(); handleTranslate(i, article.title, article.description); }}
-                      title="Traduzir notícia" 
-                      disabled={translations[i]?.loading || translations[i]?.title}
-                      style={{ 
-                        color: translations[i]?.title ? '#4ade80' : '#aaa', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        padding: '4px', 
-                        borderRadius: '4px', 
-                        background: 'rgba(255,255,255,0.05)',
-                        border: 'none',
-                        cursor: translations[i]?.title || translations[i]?.loading ? 'default' : 'pointer',
-                        opacity: translations[i]?.loading ? 0.5 : 1
-                      }}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
-                    </button>
+              {Array.from({ length: visibleCount }).map((_, i) => {
+                const article = news[i % news.length];
+                if (!article) return null;
+                return (
+                  <div key={i} style={{ borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                      <a href={article.url} target="_blank" rel="noreferrer" style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.2rem', flex: 1, paddingRight: '8px' }}>
+                        {translations[i]?.title || article.title}
+                      </a>
+                      <button 
+                        onClick={(e) => { e.preventDefault(); handleTranslate(i, article.title, article.description); }}
+                        title="Traduzir notícia" 
+                        disabled={translations[i]?.loading || translations[i]?.title}
+                        style={{ 
+                          color: translations[i]?.title ? '#4ade80' : '#aaa', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          padding: '4px', 
+                          borderRadius: '4px', 
+                          background: 'rgba(255,255,255,0.05)',
+                          border: 'none',
+                          cursor: translations[i]?.title || translations[i]?.loading ? 'default' : 'pointer',
+                          opacity: translations[i]?.loading ? 0.5 : 1
+                        }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+                      </button>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.5rem' }}>{article.source.name} - {new Date(article.publishedAt).toLocaleDateString()}</p>
+                    <p style={{ fontSize: '0.9rem' }}>{translations[i]?.description || article.description}</p>
                   </div>
-                  <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.5rem' }}>{article.source.name} - {new Date(article.publishedAt).toLocaleDateString()}</p>
-                  <p style={{ fontSize: '0.9rem' }}>{translations[i]?.description || article.description}</p>
-                </div>
-              ))}
+                );
+              })}
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                <button 
+                  onClick={() => setVisibleCount(prev => prev + 8)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid #555',
+                    color: '#aaa',
+                    padding: '6px 16px',
+                    borderRadius: '20px',
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#fff'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.color = '#aaa'; e.currentTarget.style.borderColor = '#555'; }}
+                >
+                  Ver mais
+                </button>
+              </div>
             </div>
           ) : (
             <p style={{ textAlign: 'center' }}>Nenhuma notícia encontrada.</p>
