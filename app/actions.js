@@ -157,7 +157,6 @@ import path from 'path';
 
 const dbPath = path.join(process.cwd(), 'watchlist.json');
 
-// Helper para garantir que o BD existe
 async function initDB() {
   try {
     await fs.access(dbPath);
@@ -197,7 +196,7 @@ export async function toggleWatchlist(movie) {
     return { success: true, isAdded };
   } catch (error) {
     console.error("Erro ao modificar watchlist:", error);
-    return { success: false, error: "Falha ao acessar o banco de dados" };
+    return { success: false, error: error.message || "Erro desconhecido", stack: error.stack };
   }
 }
 
