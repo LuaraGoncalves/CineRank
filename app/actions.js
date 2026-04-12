@@ -107,11 +107,15 @@ export async function fetchTrendingTrailers(query = '') {
     
     const trailerPromises = data.results.slice(0, 10).map(async (movie) => {
       try {
-        const videoUrl = `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}`;
+        const videoUrl = `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}&language=pt-BR&include_video_language=pt-BR,en,en-US`;
         const videoRes = await fetch(videoUrl);
         if (!videoRes.ok) return null;
         const videoData = await videoRes.json();
-        const trailerRaw = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+        
+        let trailerRaw = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+        if (!trailerRaw) {
+          trailerRaw = videoData.results.find(v => (v.type === 'Teaser' || v.type === 'Clip') && v.site === 'YouTube');
+        }
         
         if (!trailerRaw) return null;
         
@@ -152,54 +156,6 @@ export async function fetchPopularMoviesForQuiz() {
   }
 }
 
-import fs from 'fs/promises';
-import path from 'path';
-
-const dbPath = path.join(process.cwd(), 'watchlist.json');
-
-async function initDB() {
-  try {
-    await fs.access(dbPath);
-  } catch {
-    await fs.writeFile(dbPath, JSON.stringify([]));
-  }
-}
-
-export async function getWatchlist() {
-  try {
-    await initDB();
-    const data = await fs.readFile(dbPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Erro ao ler watchlist:", error);
-    return [];
-  }
-}
-
-export async function toggleWatchlist(movie) {
-  try {
-    await initDB();
-    const data = await fs.readFile(dbPath, 'utf-8');
-    let watchlist = JSON.parse(data);
-    
-    const exists = watchlist.find(m => m.id === movie.id);
-    let isAdded = false;
-
-    if (exists) {
-      watchlist = watchlist.filter(m => m.id !== movie.id);
-    } else {
-      watchlist.push(movie);
-      isAdded = true;
-    }
-
-    await fs.writeFile(dbPath, JSON.stringify(watchlist, null, 2));
-    return { success: true, isAdded };
-  } catch (error) {
-    console.error("Erro ao modificar watchlist:", error);
-    return { success: false, error: "Falha ao acessar o banco de dados" };
-  }
-}
-
 import Parser from 'rss-parser';
 
 const FEATURE_FLAGS = {
@@ -226,13 +182,11 @@ const logger = {
     console.warn(JSON.stringify({ timestamp: new Date().toISOString(), level: 'WARN', event, ...details }));
   }
 };
-
-// Cache In-Memory (evita estourar limite de APIs e acelera a resposta)
 let newsCache = {
   data: null,
   lastFetch: 0
 };
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutos
+const CACHE_TTL_MS = 10 * 60 * 1000; 
 
 function cleanHtmlTags(str) {
   if (!str) return '';
@@ -240,17 +194,14 @@ function cleanHtmlTags(str) {
 }
 
 export async function fetchNews() {
-  // 1. Verifica o Cache In-Memory
   const now = Date.now();
   if (newsCache.data && (now - newsCache.lastFetch < CACHE_TTL_MS)) {
     logger.info('Cache_Hit', { source: 'in-memory', age_seconds: Math.round((now - newsCache.lastFetch) / 1000) });
     return newsCache.data;
   }
 
-  // Configura Timeout de 5 Segundos para o Parser evitar travar requisições
   const parser = new Parser({ timeout: 5000 });
   
-  // Constrói a query de domínios ativados pelas Feature Flags
   const activeDomains = Object.entries(FEATURE_FLAGS.ALLOWED_SOURCES)
     .filter(([_, isActive]) => isActive)
     .map(([source]) => {
@@ -273,7 +224,6 @@ export async function fetchNews() {
     feedUrls.push(`https://news.google.com/rss/search?q=${encodeURIComponent('filme OR série OR cinema')}&hl=pt-BR&gl=BR&ceid=BR:pt-419`);
   }
 
-  // Tenta buscar nos Feeds configurados
   for (let i = 0; i < feedUrls.length; i++) {
     const url = feedUrls[i];
     try {
@@ -290,7 +240,6 @@ export async function fetchNews() {
         let sourceName = 'Desconhecida';
         let cleanTitle = item.title || 'Sem título';
         
-        // Normalização e Validação da Fonte
         const lastDashIndex = cleanTitle.lastIndexOf('-');
         if (lastDashIndex > 0) {
           const extractedSource = cleanTitle.substring(lastDashIndex + 1).trim();
@@ -303,17 +252,12 @@ export async function fetchNews() {
           sourceName = matchedSource || extractedSource;
         }
 
-        // Se a fonte for mapeada mas estiver desativada na Feature Flag, podemos filtrar depois, 
-        // ou aceitar, mas aqui nós já buscamos apenas os sites permitidos na query principal.
-
-        // Normalização de Data ISO 8601
         let normalizedDate = new Date().toISOString();
         if (item.isoDate || item.pubDate) {
           const parsedDate = new Date(item.isoDate || item.pubDate);
           if (!isNaN(parsedDate.getTime())) normalizedDate = parsedDate.toISOString();
         }
 
-        // Limpeza e Truncamento de Descrição HTML
         let normalizedDesc = cleanHtmlTags(item.contentSnippet || item.content || '');
         if (normalizedDesc.length > 150) normalizedDesc = normalizedDesc.substring(0, 147) + '...';
 
@@ -337,7 +281,6 @@ export async function fetchNews() {
     }
   }
 
-  // Fallback Final: NewsAPI com Timeout
   if (FEATURE_FLAGS.USE_NEWSAPI_FALLBACK) {
     try {
       logger.info('Fetch_NewsAPI_Fallback_Started');
@@ -347,7 +290,7 @@ export async function fetchNews() {
         const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&apiKey=${apiKey}`;
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s Timeout
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
 
         const response = await fetch(newsApiUrl, { 
           cache: 'no-store', 
