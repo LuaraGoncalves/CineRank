@@ -209,11 +209,10 @@ export async function fetchNews() {
       return [];
     }
     
-    const domains = 'omelete.com.br,adorocinema.com,jovemnerd.com.br,ign.com,collider.com,variety.com';
-    const query = '(filme OR série OR movie OR series OR anime OR cinema)';
-    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&domains=${domains}&sortBy=publishedAt&apiKey=${apiKey}`;
+   
+    const url = `https://newsapi.org/v2/top-headlines?country=br&category=entertainment&apiKey=${apiKey}`;
 
-    const response = await fetch(url);
+    const response = await fetch(url, { cache: 'no-store', next: { revalidate: 0 } });
     if (!response.ok) return [];
     
     const data = await response.json();
