@@ -29,12 +29,12 @@ export default function SaveButton({ movie }) {
     
     const movieData = {
       id: movie.id,
-      title: movie.title,
-      name: movie.name,
-      poster_path: movie.poster_path,
-      vote_average: movie.vote_average,
-      release_date: movie.release_date,
-      first_air_date: movie.first_air_date,
+      title: movie.title || null,
+      name: movie.name || null,
+      poster_path: movie.poster_path || null,
+      vote_average: movie.vote_average || null,
+      release_date: movie.release_date || null,
+      first_air_date: movie.first_air_date || null,
     };
     const result = await toggleWatchlist(movieData);
     
