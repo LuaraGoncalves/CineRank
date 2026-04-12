@@ -107,11 +107,15 @@ export async function fetchTrendingTrailers(query = '') {
     
     const trailerPromises = data.results.slice(0, 10).map(async (movie) => {
       try {
-        const videoUrl = `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}`;
+        const videoUrl = `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}&language=pt-BR&include_video_language=pt-BR,en,en-US`;
         const videoRes = await fetch(videoUrl);
         if (!videoRes.ok) return null;
         const videoData = await videoRes.json();
-        const trailerRaw = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+        
+        let trailerRaw = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+        if (!trailerRaw) {
+          trailerRaw = videoData.results.find(v => (v.type === 'Teaser' || v.type === 'Clip') && v.site === 'YouTube');
+        }
         
         if (!trailerRaw) return null;
         
