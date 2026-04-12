@@ -44,7 +44,7 @@ export default async function FilmeDetails({ params, searchParams }) {
             {details.release_date && <p><strong>Lançamento:</strong> {new Date(details.release_date).toLocaleDateString('pt-BR')}</p>}
           </div>
 
-          <SaveButton movie={{ ...details, title: details.title || details.name }} />
+          <SaveButton movie={details} />
 
           <h3 style={{ borderBottom: '1px solid #444', paddingBottom: '0.5rem', marginBottom: '1rem', marginTop: '2rem' }}>Sinopse</h3>
           <p style={{ lineHeight: '1.6' }}>{details.overview || "Sinopse não disponível."}</p>

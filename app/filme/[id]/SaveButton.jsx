@@ -26,7 +26,17 @@ export default function SaveButton({ movie }) {
 
   const handleSave = async () => {
     setLoading(true);
-    const result = await toggleWatchlist(movie);
+    
+    const movieData = {
+      id: movie.id,
+      title: movie.title,
+      name: movie.name,
+      poster_path: movie.poster_path,
+      vote_average: movie.vote_average,
+      release_date: movie.release_date,
+      first_air_date: movie.first_air_date,
+    };
+    const result = await toggleWatchlist(movieData);
     
     if (result.success) {
       setIsSaved(result.isAdded);
