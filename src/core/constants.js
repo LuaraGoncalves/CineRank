@@ -8,9 +8,9 @@ export const ROUTES = {
 };
 
 export const STORAGE_KEYS = {
-    WATCHLIST: 'watchlist',
-    THEME: 'theme',
-    HIGH_SCORE: 'highScore',
-    LAST_SEEN_NEWS: 'lastSeenNewsDate',
-    SEARCH_HISTORY: 'searchHistory'
+    WATCHLIST: 'cinerank_watchlist',
+    THEME: 'cinerank_theme',
+    HIGH_SCORE: 'cinerank_high_score',
+    LAST_SEEN_NEWS: 'cinerank_last_news',
+    SEARCH_HISTORY: 'cinerank_search_history'
 };

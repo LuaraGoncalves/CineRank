@@ -12,6 +12,7 @@ export default function Dashboard({ initialMovies }) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const hasMountedRef = useRef(false);
   const observer = useRef();
   
   const [filters, setFilters] = useState({
@@ -29,20 +30,42 @@ export default function Dashboard({ initialMovies }) {
         setGenres([]);
         return;
       }
-      const data = await fetchGenres(filters.type);
-      setGenres(data);
+      try {
+        const data = await fetchGenres(filters.type);
+        setGenres(data);
+      } catch {
+        setGenres([]);
+      }
     }
     loadGenres();
   }, [filters.type]);
 
   useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      if (initialMovies?.length === 0) {
+        setLoading(true);
+        setPage(1);
+        fetchFilteredMovies({ ...filters, page: 1 })
+          .then(data => {
+            setMovies(data);
+            setHasMore(data.length > 0);
+          })
+          .finally(() => setLoading(false));
+      }
+      return;
+    }
+
     async function loadInitialMovies() {
-      setLoading(true);
-      setPage(1); // reseta pagina
-      const data = await fetchFilteredMovies({ ...filters, page: 1 });
-      setMovies(data);
-      setHasMore(data.length > 0);
-      setLoading(false);
+      try {
+        setLoading(true);
+        setPage(1); // reseta pagina
+        const data = await fetchFilteredMovies({ ...filters, page: 1 });
+        setMovies(data);
+        setHasMore(data.length > 0);
+      } finally {
+        setLoading(false);
+      }
     }
     
     loadInitialMovies();
@@ -52,18 +75,21 @@ export default function Dashboard({ initialMovies }) {
     if (page === 1) return; // a primeira pagina carrega no filtro
     
     async function loadMoreMovies() {
-      setLoadingMore(true);
-      const data = await fetchFilteredMovies({ ...filters, page });
-      if (data.length === 0) {
-        setHasMore(false);
-      } else {
-        setMovies(prev => {
-          // Remove duplicates se a API retornar os mesmos itens
-          const newMovies = data.filter(d => !prev.some(p => p.id === d.id));
-          return [...prev, ...newMovies];
-        });
+      try {
+        setLoadingMore(true);
+        const data = await fetchFilteredMovies({ ...filters, page });
+        if (data.length === 0) {
+          setHasMore(false);
+        } else {
+          setMovies(prev => {
+            // Remove duplicates se a API retornar os mesmos itens
+            const newMovies = data.filter(d => !prev.some(p => p.id === d.id));
+            return [...prev, ...newMovies];
+          });
+        }
+      } finally {
+        setLoadingMore(false);
       }
-      setLoadingMore(false);
     }
     
     loadMoreMovies();
@@ -81,6 +107,10 @@ export default function Dashboard({ initialMovies }) {
     
     if (node) observer.current.observe(node);
   }, [loading, loadingMore, hasMore]);
+
+  useEffect(() => {
+    return () => observer.current?.disconnect();
+  }, []);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;

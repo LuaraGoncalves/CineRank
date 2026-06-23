@@ -3,20 +3,14 @@
 import { useState, useEffect } from 'react';
 import MovieCard from '../components/MovieCard';
 import SkeletonCard from '../components/SkeletonCard';
+import { StorageService } from '../../src/core/storage.js';
 
 export default function Watchlist() {
   const [watchlist, setWatchlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('cinerank_watchlist');
-    if (stored) {
-      try {
-        setWatchlist(JSON.parse(stored));
-      } catch (e) {
-        console.error('Erro ao parsear watchlist', e);
-      }
-    }
+    setWatchlist(StorageService.getWatchlist());
     setLoading(false);
   }, []);
 

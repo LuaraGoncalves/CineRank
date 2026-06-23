@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import NotificationModal from './NotificationModal';
 import { searchMulti } from '../actions';
 import { useRouter } from 'next/navigation';
+import { StorageService } from '../../src/core/storage.js';
 
 export default function Header() {
   const [theme, setTheme] = useState('dark');
@@ -45,7 +46,7 @@ export default function Header() {
   }, [query]);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('cinerank_theme') || 'dark';
+    const savedTheme = StorageService.getTheme() || 'dark';
     setTheme(savedTheme);
     if (savedTheme === 'light') {
       document.body.classList.add('light-mode');
@@ -57,7 +58,7 @@ export default function Header() {
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    localStorage.setItem('cinerank_theme', newTheme);
+    StorageService.setTheme(newTheme);
     if (newTheme === 'light') {
       document.body.classList.add('light-mode');
     } else {
@@ -164,7 +165,7 @@ export default function Header() {
             </div>
           )}
         </div>
-        <button id="theme-toggle" aria-label="Alternar modo de cor" aria-pressed="false" tabIndex="0" onClick={toggleTheme}>
+        <button id="theme-toggle" aria-label="Alternar modo de cor" aria-pressed={theme === 'light'} onClick={toggleTheme}>
           {theme === 'dark' ? (
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-moon icon theme-icon moon-icon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
           ) : (

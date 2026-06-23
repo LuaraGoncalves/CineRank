@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { StorageService } from '../../../src/core/storage.js';
 
 export default function SaveButton({ movie }) {
   const [loading, setLoading] = useState(true);
@@ -8,13 +9,7 @@ export default function SaveButton({ movie }) {
   const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
-    const stored = localStorage.getItem('cinerank_watchlist');
-    if (stored) {
-      try {
-        const watchlist = JSON.parse(stored);
-        setIsSaved(watchlist.some(m => m.id === movie.id));
-      } catch (e) {}
-    }
+    setIsSaved(StorageService.isInWatchlist(movie.id));
     setLoading(false);
   }, [movie.id]);
 
@@ -27,6 +22,7 @@ export default function SaveButton({ movie }) {
 
   const handleSave = () => {
     setLoading(true);
+    const currentType = movie.media_type || (movie.title ? 'movie' : 'tv');
     
     const movieData = {
       id: movie.id,
@@ -39,21 +35,16 @@ export default function SaveButton({ movie }) {
     };
     
     try {
-      const stored = localStorage.getItem('cinerank_watchlist');
-      let watchlist = stored ? JSON.parse(stored) : [];
-      
-      const exists = watchlist.find(m => m.id === movie.id);
+      const exists = StorageService.isInWatchlist(movie.id);
       let isAdded = false;
 
       if (exists) {
-        watchlist = watchlist.filter(m => m.id !== movie.id);
+        StorageService.removeFromWatchlist(movie.id);
       } else {
-        watchlist.push(movieData);
+        StorageService.addToWatchlist(movieData, currentType);
         isAdded = true;
       }
-      
-      localStorage.setItem('cinerank_watchlist', JSON.stringify(watchlist));
-      
+
       setIsSaved(isAdded);
       if (isAdded) {
         showToast('Adicionado aos favoritos!');

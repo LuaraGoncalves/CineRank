@@ -19,7 +19,11 @@ export default async function FilmeDetails({ params, searchParams }) {
     );
   }
 
-  const director = details.credits?.crew?.find(c => c.job === 'Director')?.name || 'Desconhecido';
+  const directorOrCreator = type === 'movie'
+    ? details.credits?.crew?.find(c => c.job === 'Director')?.name || 'Desconhecido'
+    : details.created_by?.map(person => person.name).filter(Boolean).join(', ') 
+      || details.credits?.crew?.find(c => c.job === 'Creator')?.name
+      || 'Desconhecido';
   const posterPath = details.poster_path 
     ? `https://image.tmdb.org/t/p/w500${details.poster_path}` 
     : 'https://via.placeholder.com/500x750?text=Sem+Imagem';
@@ -38,7 +42,7 @@ export default async function FilmeDetails({ params, searchParams }) {
           <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>⭐ {details.vote_average?.toFixed(1)}/10</p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem', color: 'var(--text-light)' }}>
-            <p><strong>{type === 'movie' ? 'Diretor:' : 'Criador:'}</strong> {director}</p>
+            <p><strong>{type === 'movie' ? 'Diretor:' : 'Criador:'}</strong> {directorOrCreator}</p>
             <p><strong>Gêneros:</strong> {details.genres?.map(g => g.name).join(', ') || 'N/A'}</p>
             {details.runtime && <p><strong>Duração:</strong> {details.runtime} min</p>}
             {details.release_date && <p><strong>Lançamento:</strong> {new Date(details.release_date).toLocaleDateString('pt-BR')}</p>}

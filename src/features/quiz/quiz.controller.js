@@ -1,5 +1,5 @@
-import { TmdbAPI } from '../../services/tmdb.service.js';
 import { StorageService } from '../../core/storage.js';
+import { TmdbAPI } from '../../services/tmdb.service.js';
 import { getState, setState } from './quiz.state.js';
 
 const TOTAL_QUESTIONS = 5;

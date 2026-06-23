@@ -3,7 +3,7 @@ import Dashboard from './components/Dashboard';
 // Função que roda no servidor (SSR/SSG)
 async function getTrendingMovies() {
   try {
-    const apiKey = process.env.VITE_TMDB_API_KEY;
+    const apiKey = process.env.TMDB_API_KEY;
     if (!apiKey) return [];
     
     // Usando a rota de trending para preencher a Home
