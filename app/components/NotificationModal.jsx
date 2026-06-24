@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { fetchNews } from '../actions';
+import { StorageService } from '../../src/core/storage.js';
 
 export default function NotificationModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,7 +29,7 @@ export default function NotificationModal() {
       const articles = await fetchNews();
       setNews(articles);
       
-      const lastSeen = localStorage.getItem('cinerank_last_news');
+      const lastSeen = StorageService.getLastSeenNewsDate();
       if (articles.length > 0) {
         if (!lastSeen || new Date(articles[0].publishedAt) > new Date(lastSeen)) {
           setHasUnread(true);
@@ -43,7 +44,7 @@ export default function NotificationModal() {
     setIsOpen(!isOpen);
     if (!isOpen) {
       setHasUnread(false);
-      localStorage.setItem('cinerank_last_news', new Date().toISOString());
+      StorageService.setLastSeenNewsDate(new Date().toISOString());
     }
   };
 
@@ -120,9 +121,7 @@ export default function NotificationModal() {
             <p style={{ textAlign: 'center' }}>Buscando notícias...</p>
           ) : news.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {Array.from({ length: visibleCount }).map((_, i) => {
-                const article = news[i % news.length];
-                if (!article) return null;
+              {news.slice(0, visibleCount).map((article, i) => {
                 return (
                   <div key={i} style={{ borderBottom: '1px solid #333', paddingBottom: '0.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
@@ -154,7 +153,8 @@ export default function NotificationModal() {
                   </div>
                 );
               })}
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+              {visibleCount < news.length && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
                 <button 
                   onClick={() => setVisibleCount(prev => prev + 8)}
                   style={{
@@ -172,7 +172,8 @@ export default function NotificationModal() {
                 >
                   Ver mais
                 </button>
-              </div>
+                </div>
+              )}
             </div>
           ) : (
             <p style={{ textAlign: 'center' }}>Nenhuma notícia encontrada.</p>

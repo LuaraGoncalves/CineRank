@@ -1,9 +1,19 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Quiz() {
   const [gameState, setGameState] = useState('start');
+
+  useEffect(() => {
+    if (gameState !== 'loading') return;
+
+    const timeoutId = setTimeout(() => {
+      setGameState('game');
+    }, 1500);
+
+    return () => clearTimeout(timeoutId);
+  }, [gameState]);
 
   return (
     <section id="quiz" aria-labelledby="quiz-title">
@@ -23,8 +33,6 @@ export default function Quiz() {
               <div className="spinner"></div>
               <p>Gerando perguntas...</p>
             </div>
-            {/* Simulação de loading para React */}
-            {setTimeout(() => setGameState('game'), 1500) && null}
           </div>
         )}
 

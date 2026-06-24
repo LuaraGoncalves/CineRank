@@ -19,7 +19,7 @@ export async function searchMulti(query = '') {
 
 export async function fetchFilteredMovies({ type = 'all', genre = 'all', year = 'all', rating = 'all', page = 1 } = {}) {
   try {
-    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY; 
+    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
     if (!apiKey) return [];
 
     let url = '';
@@ -47,7 +47,7 @@ export async function fetchFilteredMovies({ type = 'all', genre = 'all', year = 
 
 export async function fetchGenres(type = 'movie') {
   try {
-    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY; 
+    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
     if (!apiKey) return [];
     const targetType = type === 'all' ? 'movie' : type;
     const url = `https://api.themoviedb.org/3/genre/${targetType}/list?api_key=${apiKey}&language=pt-BR`;
@@ -64,7 +64,7 @@ export async function fetchGenres(type = 'movie') {
 
 export async function fetchMovieDetailsAndRecs(id, type) {
   try {
-    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY; 
+    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
     if (!apiKey) {
        console.warn("Chave da API TMDB_API_KEY ausente no .env");
        return { details: null, recommendations: [] };
@@ -141,7 +141,7 @@ export async function fetchTrendingTrailers(query = '') {
 
 export async function fetchPopularMoviesForQuiz() {
   try {
-    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
+    const apiKey = process.env.TMDB_API_KEY;
     if (!apiKey) return [];
 
     const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=pt-BR&page=1`;

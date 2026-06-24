@@ -1,20 +1,20 @@
 # CineRank
 
-O CineRank e uma plataforma hibrida de catalogo de filmes, series e curiosidades, projetada com a arquitetura do Next.js (App Router). O sistema fornece detalhes aprofundados sobre conteudos do The Movie Database (TMDB), interacoes dinamicas (Dashboard com filtros), um sistema de Quiz interativo, sessoes de noticias atualizadas e capacidade de os usuarios salvarem suas obras favoritas com persistencia no backend (via Server Actions).
+O CineRank e uma plataforma hibrida de catalogo de filmes, series e curiosidades, projetada com a arquitetura do Next.js (App Router). O sistema fornece detalhes aprofundados sobre conteudos do The Movie Database (TMDB), interacoes dinamicas no dashboard, um sistema de quiz interativo, sessoes de noticias atualizadas e capacidade de os usuarios salvarem suas obras favoritas com persistencia local no navegador.
 
 ## Tecnologias e Arquitetura
 
 O projeto abandonou abordagens puramente estaticas e de Client-Side Rendering em prol de tecnicas de renderizacao hibridas otimizadas providas pelo Next.js.
 
-- Framework: Next.js 15+ (React 19+)
+- Framework: Next.js 16+ (React 19+)
 - Estilizacao: CSS puro centralizado (herdado do Vanilla CSS para reaproveitamento nativo)
-- Manipulacao de Dados: Server Actions, fetch caching nativo do Next.js.
+- Manipulacao de Dados: Server Components, Server Actions e fetch caching nativo do Next.js.
 - APIs Externas Integradas: TMDB API (The Movie Database), NewsAPI.
 
 ### Abordagens de Renderizacao (Hibridas)
 
-- Server-Side Rendering (SSR) e Client-Side Rendering (CSR): A Home Page (`/`) renderiza o estado inicial no servidor garantindo SEO imediato e alta performance no primeiro carregamento (FCP - First Contentful Paint). O componente `Dashboard` assume no lado do cliente (CSR) gerenciando interacoes complexas (filtros multiplos de genero, categoria e ano).
-- Incremental Static Regeneration (ISR): A rota detalhada dos titulos (`/filme/[id]`) opera atraves de ISR (`revalidate: 3600`). As paginas sao construidas no servidor, armazenadas no cache global da Edge Network e reconstruidas em background apenas a cada uma hora, o que poupa as chamadas excedentes a API externa (TMDB) e entrega os dados na velocidade da luz para todos os visitantes seguintes.
+- Server-Side Rendering (SSR) e Client-Side Rendering (CSR): A Home Page (`/`) renderiza o estado inicial no servidor e o componente `Dashboard` assume no cliente as interacoes complexas de filtros e infinite scroll.
+- Incremental Static Regeneration (ISR): A rota detalhada dos titulos (`/filme/[id]`) opera atraves de ISR (`revalidate: 3600`) para reduzir chamadas repetidas a API externa e manter os detalhes atualizados em janelas regulares.
 
 ### Estrutura de Rotas (App Router)
 
@@ -42,7 +42,7 @@ Obrigatorios:
 
 ## Deploy
 
-Este repositorio e padronizado e otimizado de forma nativa para deploys na infraestrutura da Vercel, aproveitando de recursos zero-config para suas Server Actions e geracao das paginas hibridas na Edge Network. A utilizacao de outras infraestruturas como Netlify (antigamente usado) exige configuracoes extras.
+Este repositorio funciona bem em Vercel e em outras hospedagens compatíveis com Next.js. A Vercel costuma ser a opcao mais simples por exigir menos configuracao para rotas do App Router e Server Actions.
 
 Para publicar:
 1. Conecte sua conta do GitHub a Vercel.
