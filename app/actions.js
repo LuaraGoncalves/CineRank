@@ -2,7 +2,7 @@
 
 export async function searchMulti(query = '') {
   try {
-    const apiKey = process.env.TMDB_API_KEY;
+    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
     if (!apiKey || !query) return [];
     
     const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&language=pt-BR&query=${encodeURIComponent(query)}&page=1`;
@@ -19,7 +19,7 @@ export async function searchMulti(query = '') {
 
 export async function fetchFilteredMovies({ type = 'all', genre = 'all', year = 'all', rating = 'all', page = 1 } = {}) {
   try {
-    const apiKey = process.env.TMDB_API_KEY;
+    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
     if (!apiKey) return [];
 
     let url = '';
@@ -47,7 +47,7 @@ export async function fetchFilteredMovies({ type = 'all', genre = 'all', year = 
 
 export async function fetchGenres(type = 'movie') {
   try {
-    const apiKey = process.env.TMDB_API_KEY;
+    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
     if (!apiKey) return [];
     const targetType = type === 'all' ? 'movie' : type;
     const url = `https://api.themoviedb.org/3/genre/${targetType}/list?api_key=${apiKey}&language=pt-BR`;
@@ -64,7 +64,7 @@ export async function fetchGenres(type = 'movie') {
 
 export async function fetchMovieDetailsAndRecs(id, type) {
   try {
-    const apiKey = process.env.TMDB_API_KEY;
+    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
     if (!apiKey) {
        console.warn("Chave da API TMDB_API_KEY ausente no .env");
        return { details: null, recommendations: [] };
@@ -93,7 +93,7 @@ export async function fetchMovieDetailsAndRecs(id, type) {
 
 export async function fetchTrendingTrailers(query = '') {
   try {
-    const apiKey = process.env.TMDB_API_KEY;
+    const apiKey = process.env.TMDB_API_KEY || process.env.VITE_TMDB_API_KEY;
     if (!apiKey) return [];
 
     let url = `https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}&language=pt-BR`;
@@ -284,7 +284,7 @@ export async function fetchNews() {
   if (FEATURE_FLAGS.USE_NEWSAPI_FALLBACK) {
     try {
       logger.info('Fetch_NewsAPI_Fallback_Started');
-      const apiKey = process.env.NEWS_API_KEY;
+      const apiKey = process.env.NEWS_API_KEY || process.env.VITE_NEWS_API_KEY;
       if (apiKey) {
         const query = '(filme OR série OR movie OR series OR anime OR cinema)';
         const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&apiKey=${apiKey}`;
