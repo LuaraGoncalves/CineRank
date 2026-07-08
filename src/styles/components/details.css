@@ -19,6 +19,7 @@
 
 .details-poster {
   width: 100%;
+  height: auto;
   max-width: 300px;
   border-radius: 8px;
   box-shadow: var(--shadow-lg);
@@ -87,6 +88,8 @@
 .details-recommendation-poster {
   width: 100%;
   height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
   display: block;
 }
 
