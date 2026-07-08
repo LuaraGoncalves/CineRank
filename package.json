@@ -7,14 +7,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^5.15.12",
     "cross-env": "^7.0.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.10",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
-    "vite": "^5.2.0"
+    "prettier": "^3.9.4"
   },
   "jest": {
     "transform": {},

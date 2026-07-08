@@ -1,51 +1,120 @@
 # CineRank
 
-O CineRank e uma plataforma hibrida de catalogo de filmes, series e curiosidades, projetada com a arquitetura do Next.js (App Router). O sistema fornece detalhes aprofundados sobre conteudos do The Movie Database (TMDB), interacoes dinamicas no dashboard, um sistema de quiz interativo, sessoes de noticias atualizadas e capacidade de os usuarios salvarem suas obras favoritas com persistencia local no navegador.
+CineRank e uma aplicacao Next.js para descobrir filmes, series, trailers e noticias do universo audiovisual. O projeto usa APIs externas para buscar conteudos, renderizacao hibrida do Next.js e persistencia local no navegador para favoritos e preferencias.
 
-## Tecnologias e Arquitetura
+## Tecnologias
 
-O projeto abandonou abordagens puramente estaticas e de Client-Side Rendering em prol de tecnicas de renderizacao hibridas otimizadas providas pelo Next.js.
+- Next.js 16 com App Router
+- React 19
+- CSS puro modularizado
+- Server Components e Server Actions
+- TMDB API para filmes, series, detalhes, quiz e trailers
+- Google News RSS e NewsAPI como fontes de noticias
+- Jest para testes
+- ESLint e Prettier para qualidade e formatacao
+- Netlify para deploy
 
-- Framework: Next.js 16+ (React 19+)
-- Estilizacao: CSS puro centralizado (herdado do Vanilla CSS para reaproveitamento nativo)
-- Manipulacao de Dados: Server Components, Server Actions e fetch caching nativo do Next.js.
-- APIs Externas Integradas: TMDB API (The Movie Database), NewsAPI.
+## Funcionalidades
 
-### Abordagens de Renderizacao (Hibridas)
+- Dashboard com filmes e series em destaque
+- Filtros por tipo, genero, ano e classificacao
+- Busca global no cabecalho
+- Pagina de detalhes com sinopse, nota, generos, diretor/criador e recomendacoes
+- Lista de favoritos persistida com `localStorage`
+- Quiz com perguntas geradas a partir de filmes populares do TMDB
+- Trailers com carregamento progressivo via botao "Ver mais"
+- Noticias misturadas entre fontes nacionais e internacionais
+- Traducao manual de noticias quando necessario
+- Tema claro/escuro salvo localmente
 
-- Server-Side Rendering (SSR) e Client-Side Rendering (CSR): A Home Page (`/`) renderiza o estado inicial no servidor e o componente `Dashboard` assume no cliente as interacoes complexas de filtros e infinite scroll.
-- Incremental Static Regeneration (ISR): A rota detalhada dos titulos (`/filme/[id]`) opera atraves de ISR (`revalidate: 3600`) para reduzir chamadas repetidas a API externa e manter os detalhes atualizados em janelas regulares.
+## Estrutura
 
-### Estrutura de Rotas (App Router)
+```txt
+app/
+  Rotas, Server Actions e componentes da aplicacao Next.js.
 
-- `/` - Home Page e Dashboard com scroll infinito.
-- `/filme/[id]` - Rota dinamica de detalhes da obra e recomendacoes.
-- `/watchlist` - Lista de favoritos sincronizada com a persistencia no backend local.
-- `/quiz` - Sistema interativo de perguntas e respostas renderizado pelo lado do cliente.
-- `/trailers` - Interface com as promessas de novos trailers integrados ao TMDB.
+src/services/
+  Camada de acesso a APIs externas como TMDB, noticias e trailers.
 
-## Configuracao de Ambiente
+src/core/
+  Constantes e armazenamento local do navegador.
 
-Para executar este projeto localmente, crie um arquivo `.env` na raiz do diretorio espelhando o `.env.example`.
+src/styles/
+  CSS global dividido por base, layout, componentes e utilitarios.
 
-Obrigatorios:
-- TMDB_API_KEY: Chave de acesso fornecida na documentacao de desenvolvedores do The Movie Database (TMDB).
-- NEWS_API_KEY: Chave de acesso fornecida pela plataforma NewsAPI (newsapi.org).
+src/utils/
+  Funcoes utilitarias e testes simples.
+```
 
-## Instalacao e Execucao Local
+## Rotas
 
-1. Certifique-se de possuir o Node.js na sua maquina (recomenda-se a versao LTS atual).
-2. Clone o repositorio.
-3. Instale as dependencias executando: `npm install`
-4. Inicie o servidor de desenvolvimento: `npm run dev`
-5. Acesse http://localhost:3000
+- `/` - Dashboard principal
+- `/filme/[id]` - Detalhes de filme ou serie
+- `/watchlist` - Favoritos salvos no navegador
+- `/quiz` - Quiz interativo
+- `/trailers` - Busca e listagem de trailers
+
+## Variaveis de Ambiente
+
+Crie um arquivo `.env` na raiz seguindo o modelo de `.env.example`.
+
+```txt
+TMDB_API_KEY=SuaChaveDaAPI_Aqui
+NEWS_API_KEY=SuaChaveDaAPI_Aqui
+```
+
+`TMDB_API_KEY` e obrigatoria para filmes, series, quiz e trailers.
+
+`NEWS_API_KEY` e usada apenas como fallback caso as fontes RSS de noticias nao retornem resultados.
+
+## Como Rodar Localmente
+
+```bash
+npm install
+npm run dev
+```
+
+Depois acesse:
+
+```txt
+http://localhost:3000
+```
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run format:check
+npm run format
+npm test
+```
 
 ## Deploy
 
-Este repositorio funciona bem em Vercel e em outras hospedagens compatíveis com Next.js. A Vercel costuma ser a opcao mais simples por exigir menos configuracao para rotas do App Router e Server Actions.
+O projeto esta configurado para Netlify via `netlify.toml`.
 
-Para publicar:
-1. Conecte sua conta do GitHub a Vercel.
-2. Importe o repositorio do CineRank.
-3. Adicione suas chaves do `.env` na sessao de "Environment Variables" da Vercel.
-4. Execute o Deploy.
+Config atual:
+
+```toml
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+```
+
+No painel da Netlify, configure as variaveis:
+
+- `TMDB_API_KEY`
+- `NEWS_API_KEY`
+
+## Observacoes Importantes
+
+- Favoritos ainda nao usam banco real. Eles ficam no navegador da pessoa via `localStorage`.
+- Para sincronizar favoritos entre dispositivos, o proximo passo seria adicionar autenticacao e banco, como Supabase.
+- A traducao de noticias e manual: a pessoa precisa clicar no icone de globo.
+- O projeto depende de APIs externas, entao dados podem variar conforme disponibilidade e limites dessas APIs.

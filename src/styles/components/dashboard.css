@@ -1,0 +1,9 @@
+/* Dashboard filters */
+.dashboard-filters {
+  display: flex;
+  position: relative;
+  z-index: 10;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
