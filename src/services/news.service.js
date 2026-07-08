@@ -13,6 +13,16 @@ const FEATURE_FLAGS = {
     }
 };
 
+const NEWS_LIMIT = 30;
+const NEWS_SOURCE_DOMAINS = {
+    'Omelete': 'omelete.com.br',
+    'AdoroCinema': 'adorocinema.com',
+    'Jovem Nerd': 'jovemnerd.com.br',
+    'IGN Brasil': 'br.ign.com',
+    'Collider': 'collider.com',
+    'Variety': 'variety.com'
+};
+
 const logger = {
     info: (event, details = {}) => {
         console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'INFO', event, ...details }));
@@ -38,34 +48,35 @@ function cleanHtmlTags(str) {
 }
 
 function buildGoogleNewsFeedUrls() {
-    const activeDomains = Object.entries(FEATURE_FLAGS.ALLOWED_SOURCES)
+    const activeSources = Object.entries(FEATURE_FLAGS.ALLOWED_SOURCES)
         .filter(([_, isActive]) => isActive)
-        .map(([source]) => {
-            const mapping = {
-                'Omelete': 'omelete.com.br',
-                'AdoroCinema': 'adorocinema.com',
-                'Jovem Nerd': 'jovemnerd.com.br',
-                'IGN Brasil': 'br.ign.com',
-                'Collider': 'collider.com',
-                'Variety': 'variety.com'
-            };
-            return `site:${mapping[source] || source}`;
-        })
-        .join(' OR ');
+        .map(([source]) => ({
+            source,
+            domain: NEWS_SOURCE_DOMAINS[source] || source
+        }));
 
     const feedUrls = [];
     if (FEATURE_FLAGS.USE_GOOGLE_NEWS) {
-        if (activeDomains) {
-            feedUrls.push(`https://news.google.com/rss/search?q=${encodeURIComponent(activeDomains)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`);
-        }
-        feedUrls.push(`https://news.google.com/rss/search?q=${encodeURIComponent('filme OR série OR cinema')}&hl=pt-BR&gl=BR&ceid=BR:pt-419`);
+        activeSources.forEach(({ source, domain }) => {
+            feedUrls.push({
+                source,
+                isFallback: false,
+                url: `https://news.google.com/rss/search?q=${encodeURIComponent(`site:${domain}`)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
+            });
+        });
+
+        feedUrls.push({
+            source: 'Google News',
+            isFallback: true,
+            url: `https://news.google.com/rss/search?q=${encodeURIComponent('filme OR série OR cinema')}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
+        });
     }
 
     return feedUrls;
 }
 
-function normalizeRssItem(item) {
-    let sourceName = 'Desconhecida';
+function normalizeRssItem(item, preferredSourceName) {
+    let sourceName = preferredSourceName || 'Desconhecida';
     let cleanTitle = item.title || 'Sem título';
 
     const lastDashIndex = cleanTitle.lastIndexOf('-');
@@ -96,6 +107,52 @@ function normalizeRssItem(item) {
         publishedAt: normalizedDate,
         source: { name: sourceName }
     };
+}
+
+function dedupeArticles(articles) {
+    const seen = new Set();
+    return articles.filter(article => {
+        const key = article.url || `${article.source.name}:${article.title}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
+function mixArticlesBySource(sourceResults, limit = NEWS_LIMIT) {
+    const buckets = sourceResults
+        .map(result => ({
+            source: result.source,
+            articles: dedupeArticles(result.articles || [])
+        }))
+        .filter(result => result.articles.length > 0);
+
+    const mixedArticles = [];
+    const seen = new Set();
+    let hasMoreArticles = true;
+    let articleIndex = 0;
+
+    while (mixedArticles.length < limit && hasMoreArticles) {
+        hasMoreArticles = false;
+
+        for (const bucket of buckets) {
+            const article = bucket.articles[articleIndex];
+            if (!article) continue;
+
+            hasMoreArticles = true;
+            const key = article.url || `${article.source.name}:${article.title}`;
+            if (seen.has(key)) continue;
+
+            seen.add(key);
+            mixedArticles.push(article);
+
+            if (mixedArticles.length >= limit) break;
+        }
+
+        articleIndex += 1;
+    }
+
+    return mixedArticles;
 }
 
 async function fetchNewsApiFallback(now) {
@@ -129,7 +186,7 @@ async function fetchNewsApiFallback(now) {
             description: cleanHtmlTags(item.description || ''),
             publishedAt: item.publishedAt || new Date().toISOString(),
             source: { name: item.source?.name || 'NewsAPI Fallback' }
-        })).slice(0, 30);
+        })).slice(0, NEWS_LIMIT);
 
         newsCache = { data: fallbackArticles, lastFetch: now };
         logger.info('Fetch_NewsAPI_Fallback_Success', { count: fallbackArticles.length });
@@ -149,28 +206,55 @@ export async function fetchNews() {
 
     const parser = new Parser({ timeout: 5000 });
     const feedUrls = buildGoogleNewsFeedUrls();
+    const sourceResults = [];
+    let fallbackResult = null;
 
     for (let i = 0; i < feedUrls.length; i++) {
-        const url = feedUrls[i];
+        const feedConfig = feedUrls[i];
         try {
-            logger.info('Fetch_RSS_Attempt', { step: i + 1, is_fallback: i > 0 });
+            logger.info('Fetch_RSS_Attempt', { step: i + 1, source: feedConfig.source, is_fallback: feedConfig.isFallback });
 
-            const feed = await parser.parseURL(url);
+            const feed = await parser.parseURL(feedConfig.url);
             if (!feed?.items?.length) {
-                logger.warn('Fetch_RSS_Empty', { url });
+                logger.warn('Fetch_RSS_Empty', { source: feedConfig.source, url: feedConfig.url });
                 continue;
             }
 
-            const articles = feed.items.map(normalizeRssItem);
+            const articles = feed.items.map(item => normalizeRssItem(item, feedConfig.source));
             if (articles.length > 0) {
-                const finalArticles = articles.slice(0, 30);
-                newsCache = { data: finalArticles, lastFetch: now };
-                logger.info('Fetch_RSS_Success', { count: finalArticles.length });
-                return finalArticles;
+                const result = {
+                    source: feedConfig.source,
+                    articles
+                };
+
+                if (feedConfig.isFallback) {
+                    fallbackResult = result;
+                } else {
+                    sourceResults.push(result);
+                }
+
+                logger.info('Fetch_RSS_Source_Success', { source: feedConfig.source, count: articles.length });
             }
         } catch (error) {
-            logger.error('Fetch_RSS_Error', error, { step: i + 1, url });
+            logger.error('Fetch_RSS_Error', error, { step: i + 1, source: feedConfig.source, url: feedConfig.url });
         }
+    }
+
+    const mixedArticles = mixArticlesBySource(sourceResults, NEWS_LIMIT);
+    if (mixedArticles.length > 0) {
+        newsCache = { data: mixedArticles, lastFetch: now };
+        logger.info('Fetch_RSS_Mixed_Success', {
+            count: mixedArticles.length,
+            sources: sourceResults.map(result => result.source)
+        });
+        return mixedArticles;
+    }
+
+    if (fallbackResult?.articles?.length) {
+        const fallbackArticles = dedupeArticles(fallbackResult.articles).slice(0, NEWS_LIMIT);
+        newsCache = { data: fallbackArticles, lastFetch: now };
+        logger.info('Fetch_RSS_Fallback_Success', { count: fallbackArticles.length });
+        return fallbackArticles;
     }
 
     const fallbackArticles = await fetchNewsApiFallback(now);

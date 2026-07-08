@@ -49,7 +49,7 @@ export default function NotificationModal() {
   };
 
   const handleTranslate = async (index, title, description) => {
-    if (translations[index]) return; // already translated or translating
+    if (translations[index]?.loading || translations[index]?.title) return;
 
     setTranslations(prev => ({ ...prev, [index]: { loading: true } }));
 
@@ -57,13 +57,25 @@ export default function NotificationModal() {
       const translateText = async (text) => {
         if (!text) return text;
         const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=pt&dt=t&q=${encodeURIComponent(text)}`);
+        if (!res.ok) {
+          throw new Error('Falha ao traduzir notícia');
+        }
         const data = await res.json();
         return data[0].map(item => item[0]).join('');
       };
 
+      const translateWithRetry = async (text) => {
+        try {
+          return await translateText(text);
+        } catch (firstError) {
+          console.warn('Tentando traduzir novamente...', firstError);
+          return await translateText(text);
+        }
+      };
+
       const [translatedTitle, translatedDescription] = await Promise.all([
-        translateText(title),
-        translateText(description)
+        translateWithRetry(title),
+        translateWithRetry(description)
       ]);
 
       setTranslations(prev => ({
@@ -115,9 +127,10 @@ export default function NotificationModal() {
                       </a>
                       <button 
                         onClick={(e) => { e.preventDefault(); handleTranslate(i, article.title, article.description); }}
-                        title="Traduzir notícia" 
+                        title={translations[i]?.error ? "Tentar traduzir novamente" : "Traduzir notícia"} 
+                        aria-label={translations[i]?.error ? "Tentar traduzir notícia novamente" : "Traduzir notícia"}
                         disabled={translations[i]?.loading || translations[i]?.title}
-                        className={`notification-translate-button ${translations[i]?.title ? 'is-translated' : ''}`}
+                        className={`notification-translate-button ${translations[i]?.title ? 'is-translated' : ''} ${translations[i]?.error ? 'is-error' : ''}`}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
                       </button>
