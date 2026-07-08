@@ -12,7 +12,7 @@ export default async function FilmeDetails({ params, searchParams }) {
 
   if (!details) {
     return (
-      <main style={{ padding: '2rem', textAlign: 'center' }}>
+      <main className="details-not-found">
         <h1>Filme/Série não encontrado</h1>
         <p>A API não retornou dados para este ID.</p>
       </main>
@@ -29,19 +29,19 @@ export default async function FilmeDetails({ params, searchParams }) {
     : 'https://via.placeholder.com/500x750?text=Sem+Imagem';
 
   return (
-    <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem' }}>
-      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
+    <main className="details-page">
+      <div className="details-hero">
         <img 
           src={posterPath} 
           alt={details.title || details.name} 
-          style={{ width: '100%', maxWidth: '300px', borderRadius: '8px', boxShadow: 'var(--shadow-lg)' }} 
+          className="details-poster"
         />
         
-        <div style={{ flex: 1, minWidth: 'min(100%, 300px)' }}>
-          <h1 style={{ marginBottom: '1rem', textAlign: 'left' }}>{details.title || details.name}</h1>
-          <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>⭐ {details.vote_average?.toFixed(1)}/10</p>
+        <div className="details-content">
+          <h1 className="details-title">{details.title || details.name}</h1>
+          <p className="details-rating">⭐ {details.vote_average?.toFixed(1)}/10</p>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem', color: 'var(--text-light)' }}>
+          <div className="details-meta">
             <p><strong>{type === 'movie' ? 'Diretor:' : 'Criador:'}</strong> {directorOrCreator}</p>
             <p><strong>Gêneros:</strong> {details.genres?.map(g => g.name).join(', ') || 'N/A'}</p>
             {details.runtime && <p><strong>Duração:</strong> {details.runtime} min</p>}
@@ -50,27 +50,27 @@ export default async function FilmeDetails({ params, searchParams }) {
 
           <SaveButton movie={details} />
 
-          <h3 style={{ borderBottom: '1px solid #444', paddingBottom: '0.5rem', marginBottom: '1rem', marginTop: '2rem' }}>Sinopse</h3>
-          <p style={{ lineHeight: '1.6' }}>{details.overview || "Sinopse não disponível."}</p>
+          <h3 className="details-section-title">Sinopse</h3>
+          <p className="details-overview">{details.overview || "Sinopse não disponível."}</p>
         </div>
       </div>
 
       {recommendations?.length > 0 && (
         <section aria-labelledby="recs-title">
-          <h2 id="recs-title" style={{ fontSize: '1.8rem', borderBottom: '1px solid #444', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
+          <h2 id="recs-title" className="details-recommendations-title">
             Recomendações
           </h2>
-          <div className="movie-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem' }}>
+          <div className="movie-container details-recommendations-grid">
             {recommendations.slice(0, 5).map(rec => (
-              <a key={rec.id} href={`/filme/${rec.id}?type=${type}`} style={{ textDecoration: 'none' }}>
-                <div style={{ background: 'var(--card-bg)', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer' }}>
+              <a key={rec.id} href={`/filme/${rec.id}?type=${type}`} className="details-recommendation-link">
+                <div className="details-recommendation-card">
                   <img 
                     src={rec.poster_path ? `https://image.tmdb.org/t/p/w300${rec.poster_path}` : 'https://via.placeholder.com/300x450'} 
                     alt={rec.title || rec.name}
-                    style={{ width: '100%', height: 'auto', display: 'block' }}
+                    className="details-recommendation-poster"
                   />
-                  <div style={{ padding: '0.8rem' }}>
-                    <p style={{ margin: 0, fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--text-light)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div className="details-recommendation-body">
+                    <p className="details-recommendation-name">
                       {rec.title || rec.name}
                     </p>
                   </div>

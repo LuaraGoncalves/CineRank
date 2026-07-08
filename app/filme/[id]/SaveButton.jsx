@@ -60,30 +60,16 @@ export default function SaveButton({ movie }) {
   };
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div className="save-button-wrapper">
       <button 
         onClick={handleSave}
         disabled={loading}
         title={isSaved ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-        style={{ 
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '0.6rem 1.2rem', 
-          background: isSaved ? 'rgba(255, 255, 255, 0.1)' : 'var(--primary-color)', 
-          color: isSaved ? 'var(--text-light)' : 'var(--text-color)', 
-          border: isSaved ? '1px solid #444' : '1px solid var(--primary-color)', 
-          borderRadius: '20px', 
-          cursor: loading ? 'wait' : 'pointer', 
-          fontWeight: '500', 
-          fontSize: '0.9rem', 
-          transition: 'all 0.2s',
-          opacity: loading ? 0.7 : 1
-        }}
+        className={`save-button ${isSaved ? 'is-saved' : ''}`}
       >
         {isSaved ? (
           <>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#ef4444' }}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            <svg className="save-button-icon-saved" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
             Remover
           </>
         ) : (
@@ -95,23 +81,7 @@ export default function SaveButton({ movie }) {
       </button>
 
       {toastMessage && (
-        <div style={{
-          position: 'absolute',
-          bottom: '100%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          marginBottom: '10px',
-          padding: '8px 12px',
-          background: 'var(--card-bg)',
-          color: 'var(--text-color)',
-          border: '1px solid #444',
-          borderRadius: '4px',
-          fontSize: '0.8rem',
-          whiteSpace: 'nowrap',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-          zIndex: 1000,
-          animation: 'fadeIn 0.2s ease-out'
-        }}>
+        <div className="save-toast">
           {toastMessage}
         </div>
       )}

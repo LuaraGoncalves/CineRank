@@ -15,8 +15,8 @@ export default function Watchlist() {
   }, []);
 
   return (
-    <section id="watchlist" aria-labelledby="watchlist-title" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-      <h2 id="watchlist-title" style={{ marginBottom: '1.5rem', fontSize: '2rem' }}>Minha Lista de Favoritos</h2>
+    <section id="watchlist" aria-labelledby="watchlist-title" className="page-section watchlist-page">
+      <h2 id="watchlist-title" className="page-title">Minha Lista de Favoritos</h2>
       <div id="watchlist-container" className="movie-container" role="region" aria-live="polite">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
@@ -25,7 +25,7 @@ export default function Watchlist() {
             <MovieCard key={movie.id} movie={movie} />
           ))
         ) : (
-          <p style={{ textAlign: 'center', width: '100%', padding: '2rem', color: 'var(--text-light)' }}>
+          <p className="empty-state-text empty-state-text-padded">
             Sua lista está vazia. Adicione filmes e séries para vê-los aqui!
           </p>
         )}

@@ -7,7 +7,7 @@ export default function MovieCard({ movie }) {
     : 'https://via.placeholder.com/500x750?text=Sem+Imagem';
     
   return (
-    <Link href={`/filme/${movie.id}?type=${type}`} style={{ textDecoration: 'none' }}>
+    <Link href={`/filme/${movie.id}?type=${type}`} className="movie-card-link">
       <div 
         className="movie-card" 
         tabIndex="0" 
