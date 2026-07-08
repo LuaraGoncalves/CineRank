@@ -1,0 +1,10 @@
+@media (max-width: 520px) {
+  .trailer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .notification-panel,
+  .search-results-dropdown {
+    right: -0.5rem;
+  }
+}

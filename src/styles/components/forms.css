@@ -1,0 +1,79 @@
+/* Custom select */
+.custom-select-wrapper {
+  position: relative;
+}
+
+.custom-select-wrapper.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.custom-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  color: var(--text-light);
+  background: var(--card-bg);
+  border: 1px solid #444;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.custom-select-trigger:disabled {
+  cursor: not-allowed;
+}
+
+.custom-select-label {
+  overflow: hidden;
+  padding-right: 8px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.custom-select-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.custom-select-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.custom-select-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  max-height: 160px;
+  overflow-y: auto;
+  background: var(--card-bg);
+  border: 1px solid #444;
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.custom-select-option {
+  width: 100%;
+  display: block;
+  padding: 0.8rem 1rem;
+  color: var(--text-light);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+}
+
+.custom-select-option:hover,
+.custom-select-option:focus-visible {
+  background: #2a2a2a;
+}
+
+.custom-select-option.is-selected {
+  color: var(--text-color);
+  background: var(--primary-color);
+}

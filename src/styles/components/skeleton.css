@@ -1,0 +1,41 @@
+/* Skeleton cards */
+.skeleton-movie-card {
+  cursor: default;
+  pointer-events: none;
+}
+
+.skeleton-poster {
+  width: 100%;
+  height: 350px;
+  background: linear-gradient(
+    90deg,
+    var(--card-bg) 25%,
+    #333 50%,
+    var(--card-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+.skeleton-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-line {
+  background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+.skeleton-line-title {
+  width: 80%;
+  height: 20px;
+}
+
+.skeleton-line-rating {
+  width: 40%;
+  height: 16px;
+}

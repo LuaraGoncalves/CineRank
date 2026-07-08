@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useRef, useEffect } from 'react';
 
@@ -8,7 +8,10 @@ export default function CustomSelect({ options, value, onChange, disabled }) {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     }
@@ -21,7 +24,8 @@ export default function CustomSelect({ options, value, onChange, disabled }) {
     setIsOpen(false);
   };
 
-  const selectedOption = options.find(opt => opt.value === value) || options[0];
+  const selectedOption =
+    options.find((opt) => opt.value === value) || options[0];
 
   return (
     <div
@@ -35,11 +39,20 @@ export default function CustomSelect({ options, value, onChange, disabled }) {
         disabled={disabled}
         aria-expanded={isOpen}
       >
-        <span className="custom-select-label">
-          {selectedOption?.label}
-        </span>
-        <svg className={`custom-select-chevron ${isOpen ? 'is-open' : ''}`} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="m6 9 6 6 6-6"/>
+        <span className="custom-select-label">{selectedOption?.label}</span>
+        <svg
+          className={`custom-select-chevron ${isOpen ? 'is-open' : ''}`}
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m6 9 6 6 6-6" />
         </svg>
       </button>
 

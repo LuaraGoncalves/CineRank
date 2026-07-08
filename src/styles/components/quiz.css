@@ -1,0 +1,20 @@
+/* Quiz */
+.quiz-loading-state {
+  min-height: 200px;
+}
+
+.quiz-personality-result {
+  margin: 15px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}

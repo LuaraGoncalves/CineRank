@@ -1,0 +1,49 @@
+/* Shared page patterns */
+.page-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.page-title {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.empty-state-text {
+  width: 100%;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.empty-state-text-padded {
+  padding: 2rem;
+}
+
+.empty-state-panel {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+}
+
+.loading-panel {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.global-loading {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.global-loading p {
+  color: var(--text-color);
+  font-weight: 700;
+}

@@ -1,8 +1,9 @@
 import '../src/styles/main.css';
 
 export const metadata = {
-  title: 'CineRank - Next.js',
-  description: 'App de filmes com busca, quiz e recomendações',
+  title: 'CineRank - Filmes, séries, trailers e notícias',
+  description:
+    'Descubra filmes e séries, veja trailers, acompanhe notícias e salve favoritos.'
 };
 
 import Header from './components/Header';
