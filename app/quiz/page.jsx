@@ -29,7 +29,7 @@ export default function Quiz() {
 
         {gameState === 'loading' && (
           <div id="quiz-loading-screen">
-            <div className="loading-spinner-container" style={{ minHeight: '200px' }}>
+            <div className="loading-spinner-container quiz-loading-state">
               <div className="spinner"></div>
               <p>Gerando perguntas...</p>
             </div>
@@ -53,7 +53,7 @@ export default function Quiz() {
           <div id="quiz-end-screen">
             <h3>Quiz Finalizado!</h3>
             <p>Sua pontuação: <span id="final-score">100</span></p>
-            <p id="quiz-personality-result" style={{ fontSize: '1.1rem', fontWeight: 'bold', margin: '15px 0' }}>Cinéfilo Mestre!</p>
+            <p id="quiz-personality-result" className="quiz-personality-result">Cinéfilo Mestre!</p>
             <p>Recorde: <span id="high-score">100</span></p>
             <button id="restart-quiz-btn" onClick={() => setGameState('start')}>Jogar Novamente</button>
           </div>

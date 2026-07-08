@@ -127,7 +127,7 @@ export default function Dashboard({ initialMovies }) {
   return (
     <section id="dashboard" aria-labelledby="dashboard-title">
       <h1 id="dashboard-title">CineRank</h1>
-      <div className="filter-container" role="search" aria-label="Filtros de conteúdo" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px', zIndex: 10, position: 'relative' }}>
+      <div className="filter-container dashboard-filters" role="search" aria-label="Filtros de conteúdo">
         
         <CustomSelect 
           value={filters.type} 
@@ -189,7 +189,7 @@ export default function Dashboard({ initialMovies }) {
             {loadingMore && Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={`skel-${i}`} />)}
           </>
         ) : (
-          <p style={{ textAlign: 'center', width: '100%' }}>Nenhum filme encontrado para os filtros selecionados.</p>
+          <p className="empty-state-text">Nenhum filme encontrado para os filtros selecionados.</p>
         )}
       </div>
     </section>

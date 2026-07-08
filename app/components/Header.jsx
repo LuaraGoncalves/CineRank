@@ -75,7 +75,7 @@ export default function Header() {
         <Link href="/trailers" aria-label="Ir para a sessão de Trailers em Destaque">Trailers</Link>
       </nav>
       <div className="header-actions">
-        <div className={`search-container ${isSearchActive ? 'active' : ''}`} id="main-search-container" style={{ position: 'relative' }} ref={searchRef}>
+        <div className={`search-container ${isSearchActive ? 'active' : ''}`} id="main-search-container" ref={searchRef}>
           <input 
             type="text" 
             id="search-input" 
@@ -102,65 +102,42 @@ export default function Header() {
           </button>
           
           {showResults && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              right: 0,
-              width: '300px',
-              maxWidth: '90vw',
-              background: 'var(--card-bg)',
-              border: '1px solid #444',
-              borderRadius: '4px',
-              marginTop: '15px',
-              zIndex: 1000,
-              boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-              maxHeight: '350px',
-              overflowY: 'auto'
-            }}>
+            <div className="search-results-dropdown">
               {isSearching ? (
-                <div style={{ padding: '10px', textAlign: 'center', color: 'var(--text-light)' }}>Buscando...</div>
+                <div className="search-results-state">Buscando...</div>
               ) : results.length > 0 ? (
                 results.map((item) => (
-                  <div 
+                  <button
+                    type="button"
                     key={item.id} 
                     onClick={() => {
                       setShowResults(false);
                       setQuery('');
                       router.push(`/filme/${item.id}?type=${item.media_type}`);
                     }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      padding: '10px',
-                      borderBottom: '1px solid #333',
-                      cursor: 'pointer',
-                      transition: 'background 0.2s'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#2a2a2a'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    className="search-result-item"
                   >
                     {item.poster_path ? (
                       <img 
                         src={`https://image.tmdb.org/t/p/w92${item.poster_path}`} 
                         alt={item.title || item.name} 
-                        style={{ width: '40px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
+                        className="search-result-poster"
                       />
                     ) : (
-                      <div style={{ width: '40px', height: '60px', background: '#333', borderRadius: '4px' }}></div>
+                      <div className="search-result-poster-placeholder"></div>
                     )}
                     <div>
-                      <div style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>{item.title || item.name}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>
+                      <div className="search-result-title">{item.title || item.name}</div>
+                      <div className="search-result-meta">
                         {item.media_type === 'movie' ? 'Filme' : 'Série'}
                         {item.release_date ? ` • ${item.release_date.substring(0, 4)}` : ''}
                         {item.first_air_date ? ` • ${item.first_air_date.substring(0, 4)}` : ''}
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))
               ) : (
-                <div style={{ padding: '10px', textAlign: 'center', color: 'var(--text-light)' }}>Nenhum resultado encontrado.</div>
+                <div className="search-results-state">Nenhum resultado encontrado.</div>
               )}
             </div>
           )}
