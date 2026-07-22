@@ -1,42 +1,26 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { fetchNews } from '../actions';
-import { StorageService } from '../../src/core/storage.js';
-
-const NEWS_TIME_ZONE = 'America/Sao_Paulo';
-
-function getNewsDay(date) {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: NEWS_TIME_ZONE,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).format(date);
-}
-
-function sortNewsByCurrentDay(articles) {
-  const today = getNewsDay(new Date());
-
-  return [...articles].sort((a, b) => {
-    const dateA = new Date(a.publishedAt);
-    const dateB = new Date(b.publishedAt);
-    const isTodayA = getNewsDay(dateA) === today;
-    const isTodayB = getNewsDay(dateB) === today;
-
-    if (isTodayA !== isTodayB) return isTodayA ? -1 : 1;
-    return dateB.getTime() - dateA.getTime();
-  });
-}
+import {
+  NEWS_TIME_ZONE,
+  useNotifications
+} from '../../src/hooks/useNotifications.js';
 
 export default function NotificationModal() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [news, setNews] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(8);
-  const [hasUnread, setHasUnread] = useState(false);
-  const [translations, setTranslations] = useState({});
   const containerRef = useRef(null);
+  const {
+    isOpen,
+    setIsOpen,
+    news,
+    loading,
+    visibleCount,
+    hasUnread,
+    translations,
+    handleOpen,
+    handleTranslate,
+    showMore
+  } = useNotifications(fetchNews);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -49,85 +33,7 @@ export default function NotificationModal() {
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    async function loadNews() {
-      setLoading(true);
-      const articles = await fetchNews();
-      const sortedArticles = sortNewsByCurrentDay(articles);
-      setNews(sortedArticles);
-
-      const lastSeen = StorageService.getLastSeenNewsDate();
-      if (sortedArticles.length > 0) {
-        if (
-          !lastSeen ||
-          new Date(sortedArticles[0].publishedAt) > new Date(lastSeen)
-        ) {
-          setHasUnread(true);
-        }
-      }
-      setLoading(false);
-    }
-    loadNews();
-  }, []);
-
-  const handleOpen = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
-      setHasUnread(false);
-      StorageService.setLastSeenNewsDate(new Date().toISOString());
-    }
-  };
-
-  const handleTranslate = async (index, title, description) => {
-    if (translations[index]?.loading || translations[index]?.title) return;
-
-    setTranslations((prev) => ({ ...prev, [index]: { loading: true } }));
-
-    try {
-      const translateText = async (text) => {
-        if (!text) return text;
-        const res = await fetch(
-          `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=pt&dt=t&q=${encodeURIComponent(text)}`
-        );
-        if (!res.ok) {
-          throw new Error('Falha ao traduzir notícia');
-        }
-        const data = await res.json();
-        return data[0].map((item) => item[0]).join('');
-      };
-
-      const translateWithRetry = async (text) => {
-        try {
-          return await translateText(text);
-        } catch (firstError) {
-          console.warn('Tentando traduzir novamente...', firstError);
-          return await translateText(text);
-        }
-      };
-
-      const [translatedTitle, translatedDescription] = await Promise.all([
-        translateWithRetry(title),
-        translateWithRetry(description)
-      ]);
-
-      setTranslations((prev) => ({
-        ...prev,
-        [index]: {
-          title: translatedTitle,
-          description: translatedDescription,
-          loading: false
-        }
-      }));
-    } catch (error) {
-      console.error('Erro ao traduzir:', error);
-      setTranslations((prev) => ({
-        ...prev,
-        [index]: { loading: false, error: true }
-      }));
-    }
-  };
+  }, [setIsOpen]);
 
   return (
     <div className="notification-container" ref={containerRef}>
@@ -245,7 +151,7 @@ export default function NotificationModal() {
               {visibleCount < news.length && (
                 <div className="notification-actions">
                   <button
-                    onClick={() => setVisibleCount((prev) => prev + 8)}
+                    onClick={showMore}
                     className="notification-more-button"
                   >
                     Ver mais

@@ -4,18 +4,26 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { searchMulti } from '../actions';
+import { useSearchSuggestions } from '../../src/hooks/useSearchSuggestions.js';
 
 const MIN_SEARCH_LENGTH = 1;
 const SEARCH_DEBOUNCE_MS = 250;
 
 export default function SearchBox() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [showResults, setShowResults] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const searchRef = useRef(null);
   const router = useRouter();
+  const {
+    results,
+    isSearching,
+    showResults,
+    setShowResults,
+    minSearchLength
+  } = useSearchSuggestions(query, searchMulti, {
+    minSearchLength: MIN_SEARCH_LENGTH,
+    debounceMs: SEARCH_DEBOUNCE_MS
+  });
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -27,31 +35,7 @@ export default function SearchBox() {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    let isCurrentSearch = true;
-    const trimmedQuery = query.trim();
-
-    const delayDebounceFn = setTimeout(async () => {
-      if (trimmedQuery.length >= MIN_SEARCH_LENGTH) {
-        setIsSearching(true);
-        const data = await searchMulti(trimmedQuery);
-        if (!isCurrentSearch) return;
-        setResults(data);
-        setIsSearching(false);
-        setShowResults(true);
-      } else {
-        setResults([]);
-        setShowResults(false);
-      }
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => {
-      isCurrentSearch = false;
-      clearTimeout(delayDebounceFn);
-    };
-  }, [query]);
+  }, [setShowResults]);
 
   const openSearch = () => {
     setIsSearchActive((prev) => !prev);
@@ -81,7 +65,7 @@ export default function SearchBox() {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         onFocus={() => {
-          if (query.trim().length >= MIN_SEARCH_LENGTH) setShowResults(true);
+          if (query.trim().length >= minSearchLength) setShowResults(true);
         }}
       />
       <button id="search-button" aria-label="Pesquisar" onClick={openSearch}>
