@@ -2,25 +2,48 @@ import Parser from 'rss-parser';
 
 const FEATURE_FLAGS = {
   USE_GOOGLE_NEWS: true,
-  USE_NEWSAPI_FALLBACK: true,
+  USE_NEWSAPI: true,
   ALLOWED_SOURCES: {
     Omelete: true,
     AdoroCinema: true,
     'Jovem Nerd': true,
     'IGN Brasil': true,
     Collider: true,
-    Variety: true
+    Variety: true,
+    CinePOP: true,
+    'Cinema com Rapadura': true,
+    Deadline: true,
+    'The Hollywood Reporter': true
   }
 };
 
 const NEWS_LIMIT = 30;
+const NEWS_QUERY_TERMS = [
+  'filme',
+  'filmes',
+  'série',
+  'séries',
+  'cinema',
+  'streaming',
+  'estreia',
+  'trailer',
+  'netflix',
+  'disney',
+  'prime video',
+  'hbo max'
+];
+const NEWS_QUERY = NEWS_QUERY_TERMS.join(' OR ');
 const NEWS_SOURCE_DOMAINS = {
   Omelete: 'omelete.com.br',
   AdoroCinema: 'adorocinema.com',
   'Jovem Nerd': 'jovemnerd.com.br',
   'IGN Brasil': 'br.ign.com',
   Collider: 'collider.com',
-  Variety: 'variety.com'
+  Variety: 'variety.com',
+  CinePOP: 'cinepop.com.br',
+  'Cinema com Rapadura': 'cinemacomrapadura.com.br',
+  Deadline: 'deadline.com',
+  'The Hollywood Reporter': 'hollywoodreporter.com'
 };
 
 const logger = {
@@ -83,14 +106,16 @@ function buildGoogleNewsFeedUrls() {
       feedUrls.push({
         source,
         isFallback: false,
-        url: `https://news.google.com/rss/search?q=${encodeURIComponent(`site:${domain}`)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
+        url: `https://news.google.com/rss/search?q=${encodeURIComponent(
+          `site:${domain} (${NEWS_QUERY})`
+        )}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
       });
     });
 
     feedUrls.push({
       source: 'Google News',
       isFallback: true,
-      url: `https://news.google.com/rss/search?q=${encodeURIComponent('filme OR série OR cinema')}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
+      url: `https://news.google.com/rss/search?q=${encodeURIComponent(NEWS_QUERY)}&hl=pt-BR&gl=BR&ceid=BR:pt-419`
     });
   }
 
@@ -146,7 +171,9 @@ function mixArticlesBySource(sourceResults, limit = NEWS_LIMIT) {
   const buckets = sourceResults
     .map((result) => ({
       source: result.source,
-      articles: dedupeArticles(result.articles || [])
+      articles: dedupeArticles(result.articles || []).sort(
+        (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt)
+      )
     }))
     .filter((result) => result.articles.length > 0);
 
@@ -178,16 +205,18 @@ function mixArticlesBySource(sourceResults, limit = NEWS_LIMIT) {
   return mixedArticles;
 }
 
-async function fetchNewsApiFallback(now) {
-  if (!FEATURE_FLAGS.USE_NEWSAPI_FALLBACK) return [];
+async function fetchNewsApiArticles() {
+  if (!FEATURE_FLAGS.USE_NEWSAPI) return [];
 
   try {
-    logger.info('Fetch_NewsAPI_Fallback_Started');
+    logger.info('Fetch_NewsAPI_Started');
     const apiKey = process.env.NEWS_API_KEY;
     if (!apiKey) return [];
 
-    const query = '(filme OR série OR movie OR series OR anime OR cinema)';
-    const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&apiKey=${apiKey}`;
+    const newsApiQuery = `(${NEWS_QUERY} OR movie OR movies OR series OR anime)`;
+    const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
+      newsApiQuery
+    )}&sortBy=publishedAt&pageSize=${NEWS_LIMIT}&apiKey=${apiKey}`;
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -203,23 +232,22 @@ async function fetchNewsApiFallback(now) {
     const data = await response.json();
     if (!data.articles?.length) return [];
 
-    const fallbackArticles = data.articles
+    const articles = data.articles
       .map((item) => ({
         title: item.title || 'Sem título',
         url: item.url || '',
         description: cleanHtmlTags(item.description || ''),
         publishedAt: item.publishedAt || new Date().toISOString(),
-        source: { name: item.source?.name || 'NewsAPI Fallback' }
+        source: { name: item.source?.name || 'NewsAPI' }
       }))
       .slice(0, NEWS_LIMIT);
 
-    newsCache = { data: fallbackArticles, lastFetch: now };
-    logger.info('Fetch_NewsAPI_Fallback_Success', {
-      count: fallbackArticles.length
+    logger.info('Fetch_NewsAPI_Success', {
+      count: articles.length
     });
-    return fallbackArticles;
+    return articles;
   } catch (apiError) {
-    logger.error('Fetch_NewsAPI_Fallback_FatalError', apiError);
+    logger.error('Fetch_NewsAPI_FatalError', apiError);
     return [];
   }
 }
@@ -286,30 +314,27 @@ export async function fetchNews() {
     }
   }
 
+  if (fallbackResult?.articles?.length) {
+    sourceResults.push(fallbackResult);
+  }
+
+  const newsApiArticles = await fetchNewsApiArticles();
+  if (newsApiArticles.length > 0) {
+    sourceResults.push({
+      source: 'NewsAPI',
+      articles: newsApiArticles
+    });
+  }
+
   const mixedArticles = mixArticlesBySource(sourceResults, NEWS_LIMIT);
   if (mixedArticles.length > 0) {
     newsCache = { data: mixedArticles, lastFetch: now };
-    logger.info('Fetch_RSS_Mixed_Success', {
+    logger.info('Fetch_News_Mixed_Success', {
       count: mixedArticles.length,
       sources: sourceResults.map((result) => result.source)
     });
     return mixedArticles;
   }
-
-  if (fallbackResult?.articles?.length) {
-    const fallbackArticles = dedupeArticles(fallbackResult.articles).slice(
-      0,
-      NEWS_LIMIT
-    );
-    newsCache = { data: fallbackArticles, lastFetch: now };
-    logger.info('Fetch_RSS_Fallback_Success', {
-      count: fallbackArticles.length
-    });
-    return fallbackArticles;
-  }
-
-  const fallbackArticles = await fetchNewsApiFallback(now);
-  if (fallbackArticles.length > 0) return fallbackArticles;
 
   logger.warn('All_News_Sources_Failed_Returning_Empty');
   return [];
