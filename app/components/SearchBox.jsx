@@ -5,6 +5,9 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { searchMulti } from '../actions';
 
+const MIN_SEARCH_LENGTH = 1;
+const SEARCH_DEBOUNCE_MS = 250;
+
 export default function SearchBox() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -27,10 +30,14 @@ export default function SearchBox() {
   }, []);
 
   useEffect(() => {
+    let isCurrentSearch = true;
+    const trimmedQuery = query.trim();
+
     const delayDebounceFn = setTimeout(async () => {
-      if (query.trim().length > 2) {
+      if (trimmedQuery.length >= MIN_SEARCH_LENGTH) {
         setIsSearching(true);
-        const data = await searchMulti(query);
+        const data = await searchMulti(trimmedQuery);
+        if (!isCurrentSearch) return;
         setResults(data);
         setIsSearching(false);
         setShowResults(true);
@@ -38,9 +45,12 @@ export default function SearchBox() {
         setResults([]);
         setShowResults(false);
       }
-    }, 500);
+    }, SEARCH_DEBOUNCE_MS);
 
-    return () => clearTimeout(delayDebounceFn);
+    return () => {
+      isCurrentSearch = false;
+      clearTimeout(delayDebounceFn);
+    };
   }, [query]);
 
   const openSearch = () => {
@@ -71,7 +81,7 @@ export default function SearchBox() {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         onFocus={() => {
-          if (query.trim().length > 2) setShowResults(true);
+          if (query.trim().length >= MIN_SEARCH_LENGTH) setShowResults(true);
         }}
       />
       <button id="search-button" aria-label="Pesquisar" onClick={openSearch}>
