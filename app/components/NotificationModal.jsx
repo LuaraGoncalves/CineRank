@@ -204,7 +204,11 @@ export default function NotificationModal() {
                     </div>
                     <p className="notification-meta">
                       {article.source.name} -{' '}
-                      {new Date(article.publishedAt).toLocaleDateString()}
+                      {new Date(article.publishedAt).toLocaleString('pt-BR', {
+                        timeZone: 'America/Sao_Paulo',
+                        dateStyle: 'short',
+                        timeStyle: 'short'
+                      })}
                     </p>
                     <p className="notification-description">
                       {translations[i]?.description || article.description}
