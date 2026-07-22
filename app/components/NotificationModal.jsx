@@ -4,6 +4,31 @@ import { useState, useEffect, useRef } from 'react';
 import { fetchNews } from '../actions';
 import { StorageService } from '../../src/core/storage.js';
 
+const NEWS_TIME_ZONE = 'America/Sao_Paulo';
+
+function getNewsDay(date) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: NEWS_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(date);
+}
+
+function sortNewsByCurrentDay(articles) {
+  const today = getNewsDay(new Date());
+
+  return [...articles].sort((a, b) => {
+    const dateA = new Date(a.publishedAt);
+    const dateB = new Date(b.publishedAt);
+    const isTodayA = getNewsDay(dateA) === today;
+    const isTodayB = getNewsDay(dateB) === today;
+
+    if (isTodayA !== isTodayB) return isTodayA ? -1 : 1;
+    return dateB.getTime() - dateA.getTime();
+  });
+}
+
 export default function NotificationModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [news, setNews] = useState([]);
@@ -30,13 +55,14 @@ export default function NotificationModal() {
     async function loadNews() {
       setLoading(true);
       const articles = await fetchNews();
-      setNews(articles);
+      const sortedArticles = sortNewsByCurrentDay(articles);
+      setNews(sortedArticles);
 
       const lastSeen = StorageService.getLastSeenNewsDate();
-      if (articles.length > 0) {
+      if (sortedArticles.length > 0) {
         if (
           !lastSeen ||
-          new Date(articles[0].publishedAt) > new Date(lastSeen)
+          new Date(sortedArticles[0].publishedAt) > new Date(lastSeen)
         ) {
           setHasUnread(true);
         }
@@ -205,7 +231,7 @@ export default function NotificationModal() {
                     <p className="notification-meta">
                       {article.source.name} -{' '}
                       {new Date(article.publishedAt).toLocaleString('pt-BR', {
-                        timeZone: 'America/Sao_Paulo',
+                        timeZone: NEWS_TIME_ZONE,
                         dateStyle: 'short',
                         timeStyle: 'short'
                       })}
