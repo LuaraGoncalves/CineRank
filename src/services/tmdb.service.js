@@ -1,4 +1,9 @@
 import { getTmdbApiKey, requestTmdb } from './tmdb.client.js';
+import {
+  normalizeGenres,
+  normalizeMediaList,
+  normalizeMovieDetails
+} from './tmdb.normalizers.js';
 
 export async function searchMulti(query = '') {
   if (!getTmdbApiKey() || !query) return [];
@@ -7,9 +12,7 @@ export async function searchMulti(query = '') {
     query,
     page: 1
   });
-  return (data?.results || [])
-    .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
-    .slice(0, 5);
+  return normalizeMediaList(data?.results).slice(0, 5);
 }
 
 export async function fetchFilteredMovies({
@@ -37,7 +40,7 @@ export async function fetchFilteredMovies({
   }
 
   const data = await requestTmdb(path, params);
-  return data?.results || [];
+  return normalizeMediaList(data?.results, type === 'all' ? null : type);
 }
 
 export async function fetchGenres(type = 'movie') {
@@ -45,7 +48,7 @@ export async function fetchGenres(type = 'movie') {
 
   const targetType = type === 'all' ? 'movie' : type;
   const data = await requestTmdb(`/genre/${targetType}/list`);
-  return data?.genres || [];
+  return normalizeGenres(data?.genres);
 }
 
 export async function fetchMovieDetailsAndRecs(id, type) {
@@ -64,8 +67,8 @@ export async function fetchMovieDetailsAndRecs(id, type) {
   ]);
 
   return {
-    details,
-    recommendations: recData?.results || []
+    details: normalizeMovieDetails(details, type),
+    recommendations: normalizeMediaList(recData?.results, type)
   };
 }
 
@@ -75,5 +78,5 @@ export async function fetchPopularMoviesForQuiz() {
   const data = await requestTmdb('/movie/popular', {
     page: 1
   });
-  return data?.results || [];
+  return normalizeMediaList(data?.results, 'movie');
 }

@@ -1,4 +1,5 @@
 import { getTmdbApiKey, requestTmdb } from './tmdb.client.js';
+import { normalizeMediaList } from './tmdb.normalizers.js';
 
 const TRAILER_SOURCE_PAGES = 3;
 const MAX_MOVIES_TO_CHECK = 24;
@@ -18,8 +19,10 @@ export async function fetchTrendingTrailers(query = '') {
   );
 
   const pages = await Promise.all(pageRequests);
-  const movies = pages
-    .flatMap((data) => data?.results || [])
+  const movies = normalizeMediaList(
+    pages.flatMap((data) => data?.results || []),
+    'movie'
+  )
     .filter(
       (movie, index, allMovies) =>
         allMovies.findIndex((item) => item.id === movie.id) === index
@@ -48,7 +51,7 @@ export async function fetchTrendingTrailers(query = '') {
         id: trailerRaw.id,
         key: trailerRaw.key,
         name: trailerRaw.name,
-        movieTitle: movie.title,
+        movieTitle: movie.title || movie.name,
         thumbnailUrl: `https://img.youtube.com/vi/${trailerRaw.key}/maxresdefault.jpg`
       };
     } catch {
