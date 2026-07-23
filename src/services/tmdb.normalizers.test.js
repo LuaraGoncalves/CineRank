@@ -48,7 +48,10 @@ describe('TMDB normalizers', () => {
         id: 20,
         name: 'Serie Teste',
         runtime: '45',
-        genres: [{ id: 18, name: 'Drama' }, { id: null, name: 'Inválido' }],
+        genres: [
+          { id: 18, name: 'Drama' },
+          { id: null, name: 'Inválido' }
+        ],
         credits: null,
         created_by: null,
         videos: null

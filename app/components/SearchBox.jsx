@@ -14,16 +14,11 @@ export default function SearchBox() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const searchRef = useRef(null);
   const router = useRouter();
-  const {
-    results,
-    isSearching,
-    showResults,
-    setShowResults,
-    minSearchLength
-  } = useSearchSuggestions(query, searchMulti, {
-    minSearchLength: MIN_SEARCH_LENGTH,
-    debounceMs: SEARCH_DEBOUNCE_MS
-  });
+  const { results, isSearching, showResults, setShowResults, minSearchLength } =
+    useSearchSuggestions(query, searchMulti, {
+      minSearchLength: MIN_SEARCH_LENGTH,
+      debounceMs: SEARCH_DEBOUNCE_MS
+    });
 
   useEffect(() => {
     function handleClickOutside(event) {
