@@ -8,8 +8,8 @@ CineRank e uma aplicacao Next.js para descobrir filmes, series, trailers e notic
 - React 19
 - CSS puro modularizado
 - Server Components e Server Actions
-- TMDB API para filmes, series, detalhes, quiz e trailers
-- Google News RSS e NewsAPI como fontes de noticias
+- TMDB API para filmes, series, detalhes, quiz e trailers, com cliente e normalizacao centralizados
+- Google News RSS e NewsAPI combinados como fontes de noticias
 - Jest para testes
 - ESLint e Prettier para qualidade e formatacao
 - Netlify para deploy
@@ -18,12 +18,12 @@ CineRank e uma aplicacao Next.js para descobrir filmes, series, trailers e notic
 
 - Dashboard com filmes e series em destaque
 - Filtros por tipo, genero, ano e classificacao
-- Busca global no cabecalho
+- Busca global no cabecalho com sugestoes enquanto a pessoa digita
 - Pagina de detalhes com sinopse, nota, generos, diretor/criador e recomendacoes
 - Lista de favoritos persistida com `localStorage`
 - Quiz com perguntas geradas a partir de filmes populares do TMDB
 - Trailers com carregamento progressivo via botao "Ver mais"
-- Noticias misturadas entre fontes nacionais e internacionais
+- Noticias misturadas entre fontes nacionais, internacionais, Google News RSS e NewsAPI
 - Traducao manual de noticias quando necessario
 - Tema claro/escuro salvo localmente
 
@@ -35,6 +35,10 @@ app/
 
 src/services/
   Camada de acesso a APIs externas como TMDB, noticias e trailers.
+  Inclui cliente TMDB centralizado e normalizadores de dados.
+
+src/hooks/
+  Hooks com regras de interface para busca, notificacoes e quiz.
 
 src/core/
   Constantes e armazenamento local do navegador.
@@ -65,7 +69,7 @@ NEWS_API_KEY=SuaChaveDaAPI_Aqui
 
 `TMDB_API_KEY` e obrigatoria para filmes, series, quiz e trailers.
 
-`NEWS_API_KEY` e usada apenas como fallback caso as fontes RSS de noticias nao retornem resultados.
+`NEWS_API_KEY` e opcional para noticias. Quando configurada, ela complementa as noticias do Google News RSS e ajuda a aumentar a quantidade de resultados recentes.
 
 ## Como Rodar Localmente
 
@@ -117,4 +121,5 @@ No painel da Netlify, configure as variaveis:
 - Favoritos ainda nao usam banco real. Eles ficam no navegador da pessoa via `localStorage`.
 - Para sincronizar favoritos entre dispositivos, o proximo passo seria adicionar autenticacao e banco, como Supabase.
 - A traducao de noticias e manual: a pessoa precisa clicar no icone de globo.
+- As noticias dependem de cache em memoria e de fontes externas; a quantidade de noticias recentes pode variar conforme Google News, NewsAPI e limites das APIs.
 - O projeto depende de APIs externas, entao dados podem variar conforme disponibilidade e limites dessas APIs.

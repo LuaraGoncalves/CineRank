@@ -1,4 +1,5 @@
 import Parser from 'rss-parser';
+import { serviceFailure, serviceSuccess } from './service-result.js';
 
 const FEATURE_FLAGS = {
   USE_GOOGLE_NEWS: true,
@@ -259,7 +260,7 @@ export async function fetchNews() {
       source: 'in-memory',
       age_seconds: Math.round((now - newsCache.lastFetch) / 1000)
     });
-    return newsCache.data;
+    return serviceSuccess(newsCache.data);
   }
 
   const parser = new Parser({ timeout: 5000 });
@@ -333,9 +334,9 @@ export async function fetchNews() {
       count: mixedArticles.length,
       sources: sourceResults.map((result) => result.source)
     });
-    return mixedArticles;
+    return serviceSuccess(mixedArticles);
   }
 
   logger.warn('All_News_Sources_Failed_Returning_Empty');
-  return [];
+  return serviceFailure('Nenhuma fonte de notícia retornou resultados');
 }

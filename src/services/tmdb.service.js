@@ -4,15 +4,23 @@ import {
   normalizeMediaList,
   normalizeMovieDetails
 } from './tmdb.normalizers.js';
+import {
+  serviceFailure,
+  serviceMissingConfig,
+  serviceSuccess
+} from './service-result.js';
 
 export async function searchMulti(query = '') {
-  if (!getTmdbApiKey() || !query) return [];
+  if (!query) return serviceSuccess([]);
+  if (!getTmdbApiKey()) return serviceMissingConfig('TMDB_API_KEY');
 
   const data = await requestTmdb('/search/multi', {
     query,
     page: 1
   });
-  return normalizeMediaList(data?.results).slice(0, 5);
+  if (!data) return serviceFailure('Não foi possível buscar filmes e séries');
+
+  return serviceSuccess(normalizeMediaList(data.results).slice(0, 5));
 }
 
 export async function fetchFilteredMovies({
@@ -22,7 +30,7 @@ export async function fetchFilteredMovies({
   rating = 'all',
   page = 1
 } = {}) {
-  if (!getTmdbApiKey()) return [];
+  if (!getTmdbApiKey()) return serviceMissingConfig('TMDB_API_KEY');
 
   let path = '';
   const params = { page };
@@ -40,21 +48,26 @@ export async function fetchFilteredMovies({
   }
 
   const data = await requestTmdb(path, params);
-  return normalizeMediaList(data?.results, type === 'all' ? null : type);
+  if (!data) return serviceFailure('Não foi possível buscar conteúdos');
+
+  return serviceSuccess(
+    normalizeMediaList(data.results, type === 'all' ? null : type)
+  );
 }
 
 export async function fetchGenres(type = 'movie') {
-  if (!getTmdbApiKey()) return [];
+  if (!getTmdbApiKey()) return serviceMissingConfig('TMDB_API_KEY');
 
   const targetType = type === 'all' ? 'movie' : type;
   const data = await requestTmdb(`/genre/${targetType}/list`);
-  return normalizeGenres(data?.genres);
+  if (!data) return serviceFailure('Não foi possível buscar gêneros');
+
+  return serviceSuccess(normalizeGenres(data.genres));
 }
 
 export async function fetchMovieDetailsAndRecs(id, type) {
   if (!getTmdbApiKey()) {
-    console.warn('Chave da API TMDB_API_KEY ausente no .env');
-    return { details: null, recommendations: [] };
+    return serviceMissingConfig('TMDB_API_KEY');
   }
 
   const [details, recData] = await Promise.all([
@@ -66,17 +79,24 @@ export async function fetchMovieDetailsAndRecs(id, type) {
     })
   ]);
 
-  return {
-    details: normalizeMovieDetails(details, type),
+  const normalizedDetails = normalizeMovieDetails(details, type);
+  if (!normalizedDetails) {
+    return serviceFailure('Não foi possível buscar detalhes do conteúdo');
+  }
+
+  return serviceSuccess({
+    details: normalizedDetails,
     recommendations: normalizeMediaList(recData?.results, type)
-  };
+  });
 }
 
 export async function fetchPopularMoviesForQuiz() {
-  if (!getTmdbApiKey()) return [];
+  if (!getTmdbApiKey()) return serviceMissingConfig('TMDB_API_KEY');
 
   const data = await requestTmdb('/movie/popular', {
     page: 1
   });
-  return normalizeMediaList(data?.results, 'movie');
+  if (!data) return serviceFailure('Não foi possível buscar filmes do quiz');
+
+  return serviceSuccess(normalizeMediaList(data.results, 'movie'));
 }

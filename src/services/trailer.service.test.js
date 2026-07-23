@@ -57,8 +57,10 @@ describe('fetchTrendingTrailers', () => {
   });
 
   it('busca multiplas paginas e remove filmes duplicados antes de montar trailers', async () => {
-    const trailers = await fetchTrendingTrailers();
+    const result = await fetchTrendingTrailers();
+    const trailers = result.data;
 
+    expect(result.ok).toBe(true);
     expect(trailers).toHaveLength(4);
     expect(trailers.map((trailer) => trailer.movieTitle)).toEqual([
       'Movie One',

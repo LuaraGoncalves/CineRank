@@ -9,10 +9,11 @@ import {
 import { fetchTrendingTrailers as fetchTrendingTrailersService } from '../src/services/trailer.service.js';
 import { fetchPopularMoviesForQuiz as fetchPopularMoviesForQuizService } from '../src/services/quiz.service.js';
 import { fetchNews as fetchNewsService } from '../src/services/news.service.js';
+import { unwrapServiceData } from '../src/services/service-result.js';
 
 export async function searchMulti(query = '') {
   try {
-    return await searchMultiService(query);
+    return unwrapServiceData(await searchMultiService(query), []);
   } catch (error) {
     console.error(error);
     return [];
@@ -21,7 +22,7 @@ export async function searchMulti(query = '') {
 
 export async function fetchFilteredMovies(filters = {}) {
   try {
-    return await fetchFilteredMoviesService(filters);
+    return unwrapServiceData(await fetchFilteredMoviesService(filters), []);
   } catch (error) {
     console.error(error);
     return [];
@@ -30,7 +31,7 @@ export async function fetchFilteredMovies(filters = {}) {
 
 export async function fetchGenres(type = 'movie') {
   try {
-    return await fetchGenresService(type);
+    return unwrapServiceData(await fetchGenresService(type), []);
   } catch (error) {
     console.error(error);
     return [];
@@ -39,7 +40,10 @@ export async function fetchGenres(type = 'movie') {
 
 export async function fetchMovieDetailsAndRecs(id, type) {
   try {
-    return await fetchMovieDetailsAndRecsService(id, type);
+    return unwrapServiceData(await fetchMovieDetailsAndRecsService(id, type), {
+      details: null,
+      recommendations: []
+    });
   } catch (error) {
     console.error(error);
     return { details: null, recommendations: [] };
@@ -48,7 +52,7 @@ export async function fetchMovieDetailsAndRecs(id, type) {
 
 export async function fetchTrendingTrailers(query = '') {
   try {
-    return await fetchTrendingTrailersService(query);
+    return unwrapServiceData(await fetchTrendingTrailersService(query), []);
   } catch (error) {
     console.error(error);
     return [];
@@ -57,7 +61,7 @@ export async function fetchTrendingTrailers(query = '') {
 
 export async function fetchPopularMoviesForQuiz() {
   try {
-    return await fetchPopularMoviesForQuizService();
+    return unwrapServiceData(await fetchPopularMoviesForQuizService(), []);
   } catch (error) {
     console.error(error);
     return [];
@@ -66,7 +70,7 @@ export async function fetchPopularMoviesForQuiz() {
 
 export async function fetchNews() {
   try {
-    return await fetchNewsService();
+    return unwrapServiceData(await fetchNewsService(), []);
   } catch (error) {
     console.error(error);
     return [];
