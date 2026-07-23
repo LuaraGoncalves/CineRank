@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { StorageService } from '../../../src/core/storage.js';
+import { WatchlistRepository } from '../../../src/repositories/watchlist.repository.js';
 
 export default function SaveButton({ movie }) {
   const [loading, setLoading] = useState(true);
@@ -9,8 +9,20 @@ export default function SaveButton({ movie }) {
   const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
-    setIsSaved(StorageService.isInWatchlist(movie.id));
-    setLoading(false);
+    let isMounted = true;
+
+    async function loadSavedState() {
+      const saved = await WatchlistRepository.isSaved(movie.id);
+      if (!isMounted) return;
+      setIsSaved(saved);
+      setLoading(false);
+    }
+
+    loadSavedState();
+
+    return () => {
+      isMounted = false;
+    };
   }, [movie.id]);
 
   const showToast = (message) => {
@@ -20,33 +32,15 @@ export default function SaveButton({ movie }) {
     }, 3000);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setLoading(true);
     const currentType = movie.media_type || (movie.title ? 'movie' : 'tv');
 
-    const movieData = {
-      id: movie.id,
-      title: movie.title || null,
-      name: movie.name || null,
-      poster_path: movie.poster_path || null,
-      vote_average: movie.vote_average || null,
-      release_date: movie.release_date || null,
-      first_air_date: movie.first_air_date || null
-    };
-
     try {
-      const exists = StorageService.isInWatchlist(movie.id);
-      let isAdded = false;
+      const result = await WatchlistRepository.toggle(movie, currentType);
 
-      if (exists) {
-        StorageService.removeFromWatchlist(movie.id);
-      } else {
-        StorageService.addToWatchlist(movieData, currentType);
-        isAdded = true;
-      }
-
-      setIsSaved(isAdded);
-      if (isAdded) {
+      setIsSaved(result.isSaved);
+      if (result.isSaved) {
         showToast('Adicionado aos favoritos!');
       } else {
         showToast('Removido dos favoritos!');
@@ -54,9 +48,9 @@ export default function SaveButton({ movie }) {
     } catch (error) {
       showToast('Erro ao salvar no dispositivo');
       console.error(error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

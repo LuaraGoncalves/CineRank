@@ -40,6 +40,10 @@ src/services/
 src/hooks/
   Hooks com regras de interface para busca, notificacoes e quiz.
 
+src/repositories/
+  Camada de acesso a dados da aplicacao. Hoje a watchlist usa persistencia local,
+  mas fica isolada para futura sincronizacao com autenticacao e banco.
+
 src/core/
   Constantes e armazenamento local do navegador.
 
@@ -118,8 +122,8 @@ No painel da Netlify, configure as variaveis:
 
 ## Observacoes Importantes
 
-- Favoritos ainda nao usam banco real. Eles ficam no navegador da pessoa via `localStorage`.
-- Para sincronizar favoritos entre dispositivos, o proximo passo seria adicionar autenticacao e banco, como Supabase.
+- Favoritos ainda nao usam banco real. Eles ficam no navegador da pessoa via `localStorage`, acessados por uma camada de repositorio local.
+- Para sincronizar favoritos entre dispositivos, o proximo passo seria trocar o repositorio local por uma implementacao com autenticacao e banco, como Supabase.
 - A traducao de noticias e manual: a pessoa precisa clicar no icone de globo.
 - As noticias dependem de cache em memoria e de fontes externas; a quantidade de noticias recentes pode variar conforme Google News, NewsAPI e limites das APIs.
 - O projeto depende de APIs externas, entao dados podem variar conforme disponibilidade e limites dessas APIs.
