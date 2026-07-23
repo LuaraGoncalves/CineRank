@@ -629,6 +629,7 @@ body.light-mode svg.icon {
   transition:
     background-color 0.3s,
     border-color 0.3s;
+  background-color: var(--primary-color);
   color: var(--text-light);
 }
 
@@ -649,8 +650,8 @@ body.light-mode svg.icon {
 }
 
 .quiz-option:disabled:hover {
-  color: inherit;
-  background-color: transparent;
+  color: var(--text-light);
+  background-color: var(--primary-color);
 }
 
 .quiz-option.correct:disabled,
