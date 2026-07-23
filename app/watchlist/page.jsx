@@ -3,15 +3,27 @@
 import { useState, useEffect } from 'react';
 import MovieCard from '../components/MovieCard';
 import SkeletonCard from '../components/SkeletonCard';
-import { StorageService } from '../../src/core/storage.js';
+import { WatchlistRepository } from '../../src/repositories/watchlist.repository.js';
 
 export default function Watchlist() {
   const [watchlist, setWatchlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setWatchlist(StorageService.getWatchlist());
-    setLoading(false);
+    let isMounted = true;
+
+    async function loadWatchlist() {
+      const savedItems = await WatchlistRepository.getAll();
+      if (!isMounted) return;
+      setWatchlist(savedItems);
+      setLoading(false);
+    }
+
+    loadWatchlist();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
