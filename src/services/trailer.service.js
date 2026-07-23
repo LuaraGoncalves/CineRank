@@ -1,11 +1,16 @@
 import { getTmdbApiKey, requestTmdb } from './tmdb.client.js';
 import { normalizeMediaList } from './tmdb.normalizers.js';
+import {
+  serviceFailure,
+  serviceMissingConfig,
+  serviceSuccess
+} from './service-result.js';
 
 const TRAILER_SOURCE_PAGES = 3;
 const MAX_MOVIES_TO_CHECK = 24;
 
 export async function fetchTrendingTrailers(query = '') {
-  if (!getTmdbApiKey()) return [];
+  if (!getTmdbApiKey()) return serviceMissingConfig('TMDB_API_KEY');
 
   const pageRequests = Array.from(
     { length: TRAILER_SOURCE_PAGES },
@@ -19,6 +24,10 @@ export async function fetchTrendingTrailers(query = '') {
   );
 
   const pages = await Promise.all(pageRequests);
+  if (pages.every((data) => !data)) {
+    return serviceFailure('Não foi possível buscar filmes para trailers');
+  }
+
   const movies = normalizeMediaList(
     pages.flatMap((data) => data?.results || []),
     'movie'
@@ -60,5 +69,5 @@ export async function fetchTrendingTrailers(query = '') {
   });
 
   const resolved = await Promise.all(trailerPromises);
-  return resolved.filter(Boolean);
+  return serviceSuccess(resolved.filter(Boolean));
 }
