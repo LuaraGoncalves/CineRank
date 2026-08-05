@@ -47,8 +47,12 @@ const NEWS_SOURCE_DOMAINS = {
   'The Hollywood Reporter': 'hollywoodreporter.com'
 };
 
+const ENABLE_NEWS_INFO_LOGS = process.env.NEWS_DEBUG_LOGS === 'true';
+
 const logger = {
   info: (event, details = {}) => {
+    if (!ENABLE_NEWS_INFO_LOGS) return;
+
     console.log(
       JSON.stringify({
         timestamp: new Date().toISOString(),
