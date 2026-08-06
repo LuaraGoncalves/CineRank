@@ -25,6 +25,18 @@
   box-shadow: var(--shadow-lg);
 }
 
+.details-poster-fallback {
+  display: flex;
+  aspect-ratio: 2 / 3;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent),
+    var(--secondary-color);
+  color: var(--text-light);
+  font-weight: 700;
+}
+
 .details-content {
   flex: 1;
   min-width: min(100%, 300px);
@@ -91,6 +103,17 @@
   aspect-ratio: 2 / 3;
   object-fit: cover;
   display: block;
+}
+
+.details-recommendation-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent),
+    var(--secondary-color);
+  color: var(--text-light);
+  font-weight: 700;
 }
 
 .details-recommendation-body {
