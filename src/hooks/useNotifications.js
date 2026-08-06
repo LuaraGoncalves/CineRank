@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { logger } from '../core/logger.js';
 import { StorageService } from '../core/storage.js';
 
 export const NEWS_TIME_ZONE = 'America/Sao_Paulo';
@@ -47,7 +48,9 @@ async function translateWithRetry(text) {
   try {
     return await translateText(text);
   } catch (firstError) {
-    console.warn('Tentando traduzir novamente...', firstError);
+    logger.warn('Notification_Translate_Retry', {
+      error: firstError?.message || String(firstError)
+    });
     return await translateText(text);
   }
 }
@@ -111,7 +114,7 @@ export function useNotifications(fetchNewsFn) {
         }
       }));
     } catch (error) {
-      console.error('Erro ao traduzir:', error);
+      logger.error('Notification_Translate_Failed', error);
       setTranslations((prev) => ({
         ...prev,
         [index]: { loading: false, error: true }

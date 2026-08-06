@@ -1,4 +1,5 @@
 import Parser from 'rss-parser';
+import { logger } from '../core/logger.js';
 import { serviceFailure, serviceSuccess } from './service-result.js';
 
 const FEATURE_FLAGS = {
@@ -45,44 +46,6 @@ const NEWS_SOURCE_DOMAINS = {
   'Cinema com Rapadura': 'cinemacomrapadura.com.br',
   Deadline: 'deadline.com',
   'The Hollywood Reporter': 'hollywoodreporter.com'
-};
-
-const ENABLE_NEWS_INFO_LOGS = process.env.NEWS_DEBUG_LOGS === 'true';
-
-const logger = {
-  info: (event, details = {}) => {
-    if (!ENABLE_NEWS_INFO_LOGS) return;
-
-    console.log(
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'INFO',
-        event,
-        ...details
-      })
-    );
-  },
-  error: (event, error, details = {}) => {
-    console.error(
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'ERROR',
-        event,
-        error: error?.message || String(error),
-        ...details
-      })
-    );
-  },
-  warn: (event, details = {}) => {
-    console.warn(
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'WARN',
-        event,
-        ...details
-      })
-    );
-  }
 };
 
 let newsCache = {
