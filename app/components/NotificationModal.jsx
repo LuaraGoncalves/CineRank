@@ -31,8 +31,19 @@ export default function NotificationModal() {
         setIsOpen(false);
       }
     }
+
+    function handleEscape(event) {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    }
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, [setIsOpen]);
 
   return (
@@ -41,6 +52,8 @@ export default function NotificationModal() {
         id="notification-bell"
         className="notification-bell"
         aria-label="Visualizar notificações e notícias"
+        aria-controls="notification-panel"
+        aria-expanded={isOpen}
         tabIndex="0"
         onClick={handleOpen}
       >
@@ -66,11 +79,24 @@ export default function NotificationModal() {
       </button>
 
       {isOpen && (
-        <div className="notification-panel">
+        <div
+          className="notification-panel"
+          id="notification-panel"
+          role="dialog"
+          aria-modal="false"
+          aria-labelledby="notification-panel-title"
+        >
           <div className="notification-panel-header">
-            <h3 className="notification-panel-title">Últimas Notícias</h3>
+            <h3
+              className="notification-panel-title"
+              id="notification-panel-title"
+            >
+              Últimas Notícias
+            </h3>
             <button
+              type="button"
               className="notification-close-button"
+              aria-label="Fechar notificações"
               onClick={() => setIsOpen(false)}
             >
               &times;
@@ -94,6 +120,7 @@ export default function NotificationModal() {
                         {translations[i]?.title || article.title}
                       </a>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.preventDefault();
                           handleTranslate(
@@ -151,6 +178,7 @@ export default function NotificationModal() {
               {visibleCount < news.length && (
                 <div className="notification-actions">
                   <button
+                    type="button"
                     onClick={showMore}
                     className="notification-more-button"
                   >
