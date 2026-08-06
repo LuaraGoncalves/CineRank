@@ -223,8 +223,28 @@ body.light-mode svg.icon {
   border-bottom: 2px solid var(--accent-color);
 }
 
+.movie-poster-fallback {
+  display: flex;
+  width: 100%;
+  min-height: 200px;
+  aspect-ratio: 2 / 3;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid var(--accent-color);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent),
+    var(--secondary-color);
+  color: var(--text-light);
+  font-weight: 700;
+  text-align: center;
+}
+
 @media (min-width: 768px) {
   .movie-card img {
+    min-height: auto;
+  }
+
+  .movie-poster-fallback {
     min-height: auto;
   }
 }

@@ -32,18 +32,24 @@ export default async function FilmeDetails({ params, searchParams }) {
         'Desconhecido';
   const posterPath = details.poster_path
     ? `https://image.tmdb.org/t/p/w500${details.poster_path}`
-    : 'https://via.placeholder.com/500x750?text=Sem+Imagem';
+    : null;
 
   return (
     <main className="details-page">
       <div className="details-hero">
-        <Image
-          src={posterPath}
-          alt={details.title || details.name}
-          width={500}
-          height={750}
-          className="details-poster"
-        />
+        {posterPath ? (
+          <Image
+            src={posterPath}
+            alt={details.title || details.name}
+            width={500}
+            height={750}
+            className="details-poster"
+          />
+        ) : (
+          <div className="details-poster details-poster-fallback">
+            Sem imagem
+          </div>
+        )}
 
         <div className="details-content">
           <h1 className="details-title">{details.title || details.name}</h1>
@@ -95,17 +101,19 @@ export default async function FilmeDetails({ params, searchParams }) {
                 className="details-recommendation-link"
               >
                 <div className="details-recommendation-card">
-                  <Image
-                    src={
-                      rec.poster_path
-                        ? `https://image.tmdb.org/t/p/w300${rec.poster_path}`
-                        : 'https://via.placeholder.com/300x450'
-                    }
-                    alt={rec.title || rec.name}
-                    width={300}
-                    height={450}
-                    className="details-recommendation-poster"
-                  />
+                  {rec.poster_path ? (
+                    <Image
+                      src={`https://image.tmdb.org/t/p/w300${rec.poster_path}`}
+                      alt={rec.title || rec.name}
+                      width={300}
+                      height={450}
+                      className="details-recommendation-poster"
+                    />
+                  ) : (
+                    <div className="details-recommendation-poster details-recommendation-fallback">
+                      Sem imagem
+                    </div>
+                  )}
                   <div className="details-recommendation-body">
                     <p className="details-recommendation-name">
                       {rec.title || rec.name}
