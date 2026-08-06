@@ -1,24 +1,13 @@
 import Dashboard from './components/Dashboard';
+import { logger } from '../src/core/logger.js';
+import { fetchTrendingHomeMovies } from '../src/services/tmdb.service.js';
+import { unwrapServiceData } from '../src/services/service-result.js';
 
-// Função que roda no servidor (SSR/SSG)
 async function getTrendingMovies() {
   try {
-    const apiKey = process.env.TMDB_API_KEY;
-    if (!apiKey) return [];
-
-    // Usando a rota de trending para preencher a Home
-    const res = await fetch(
-      `https://api.themoviedb.org/3/trending/all/day?api_key=${apiKey}&language=pt-BR&page=1`,
-      {
-        next: { revalidate: 3600 } // ISR: Revalida a cada 1 hora
-      }
-    );
-
-    if (!res.ok) throw new Error('Falha ao buscar filmes');
-    const data = await res.json();
-    return data.results || [];
+    return unwrapServiceData(await fetchTrendingHomeMovies(), []);
   } catch (error) {
-    console.error(error);
+    logger.error('Home_TrendingMovies_Failed', error);
     return [];
   }
 }

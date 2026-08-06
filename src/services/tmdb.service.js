@@ -23,6 +23,19 @@ export async function searchMulti(query = '') {
   return serviceSuccess(normalizeMediaList(data.results).slice(0, 5));
 }
 
+export async function fetchTrendingHomeMovies() {
+  if (!getTmdbApiKey()) return serviceMissingConfig('TMDB_API_KEY');
+
+  const data = await requestTmdb(
+    '/trending/all/day',
+    { page: 1 },
+    { next: { revalidate: 3600 } }
+  );
+  if (!data) return serviceFailure('Não foi possível buscar destaques');
+
+  return serviceSuccess(normalizeMediaList(data.results));
+}
+
 export async function fetchFilteredMovies({
   type = 'all',
   genre = 'all',
