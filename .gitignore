@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 .next
+playwright-report
+test-results
 
 # Editor
 .vscode/*
