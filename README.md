@@ -1,81 +1,104 @@
 # CineRank
 
-CineRank e uma aplicacao Next.js para descobrir filmes, series, trailers e noticias do universo audiovisual. O projeto usa APIs externas para buscar conteudos, renderizacao hibrida do Next.js e persistencia local no navegador para favoritos e preferencias.
+[![CI](https://github.com/LuaraGoncalves/CineRank/actions/workflows/ci.yml/badge.svg)](https://github.com/LuaraGoncalves/CineRank/actions/workflows/ci.yml)
 
-## Tecnologias
+CineRank é uma aplicação Next.js para descobrir filmes, séries, trailers e notícias do universo audiovisual. O projeto consome APIs externas, organiza regras em camadas, salva preferências no navegador e possui testes automatizados para proteger os fluxos principais.
 
-- Next.js 16 com App Router
-- React 19
-- CSS puro modularizado
-- Server Components e Server Actions
-- TMDB API para filmes, series, detalhes, quiz e trailers, com cliente e normalizacao centralizados
-- Google News RSS e NewsAPI combinados como fontes de noticias
-- Jest para testes
-- ESLint e Prettier para qualidade e formatacao
-- Netlify para deploy
+## Destaques Técnicos
+
+- Next.js 16 com App Router, Server Components e Server Actions.
+- React 19 com componentes client/server separados por responsabilidade.
+- Camada de serviços para TMDB, trailers, quiz e notícias.
+- Cliente TMDB centralizado com normalização dos dados recebidos da API.
+- Notícias combinando Google News RSS e NewsAPI, com cache em memória e mistura por fonte.
+- Watchlist isolada em repositório, hoje usando `localStorage`.
+- Tema claro/escuro salvo localmente.
+- Busca global com sugestões enquanto a pessoa digita.
+- Quiz com perguntas geradas a partir de filmes populares.
+- ESLint, Prettier, Jest, Playwright e GitHub Actions.
+- Deploy preparado para Netlify.
 
 ## Funcionalidades
 
-- Dashboard com filmes e series em destaque
-- Filtros por tipo, genero, ano e classificacao
-- Busca global no cabecalho com sugestoes enquanto a pessoa digita
-- Pagina de detalhes com sinopse, nota, generos, diretor/criador e recomendacoes
-- Lista de favoritos persistida com `localStorage`
-- Quiz com perguntas geradas a partir de filmes populares do TMDB
-- Trailers com carregamento progressivo via botao "Ver mais"
-- Noticias misturadas entre fontes nacionais, internacionais, Google News RSS e NewsAPI
-- Traducao manual de noticias quando necessario
-- Tema claro/escuro salvo localmente
+- Dashboard com filmes e séries em destaque.
+- Filtros por tipo, gênero, ano e classificação.
+- Busca global no cabeçalho com sugestões em tempo real.
+- Página de detalhes com sinopse, nota, gêneros, diretor/criador, trailers e recomendações.
+- Lista de favoritos persistida no navegador.
+- Quiz interativo de filmes e séries.
+- Página de trailers com carregamento progressivo.
+- Notificações de notícias ordenadas priorizando o dia atual.
+- Tradução manual de notícias quando necessário.
+- Tema claro/escuro salvo por usuário.
+
+## Stack
+
+- Next.js 16
+- React 19
+- JavaScript
+- CSS puro modularizado
+- Jest
+- Playwright
+- ESLint
+- Prettier
+- Netlify
 
 ## Estrutura
 
 ```txt
 app/
-  Rotas, Server Actions e componentes da aplicacao Next.js.
+  Rotas, Server Actions e componentes da aplicação Next.js.
 
 src/services/
-  Camada de acesso a APIs externas como TMDB, noticias e trailers.
-  Inclui cliente TMDB centralizado e normalizadores de dados.
+  Camada de acesso a APIs externas, normalização e regras de busca.
 
 src/hooks/
-  Hooks com regras de interface para busca, notificacoes e quiz.
+  Hooks com regras de interface para busca, notificações e quiz.
 
 src/repositories/
-  Camada de acesso a dados da aplicacao. Hoje a watchlist usa persistencia local,
-  mas fica isolada para futura sincronizacao com autenticacao e banco.
+  Camada de persistência da aplicação. Hoje a watchlist usa localStorage,
+  mas fica pronta para trocar por autenticação e banco no futuro.
 
 src/core/
-  Constantes e armazenamento local do navegador.
+  Constantes, logger e armazenamento local do navegador.
 
 src/styles/
-  CSS global dividido por base, layout, componentes e utilitarios.
+  CSS global dividido por base, layout, componentes e utilitários.
 
 src/utils/
-  Funcoes utilitarias e testes simples.
+  Funções utilitárias e testes simples.
+
+tests/e2e/
+  Testes end-to-end com Playwright.
 ```
 
 ## Rotas
 
 - `/` - Dashboard principal
-- `/filme/[id]` - Detalhes de filme ou serie
+- `/filme/[id]` - Detalhes de filme ou série
 - `/watchlist` - Favoritos salvos no navegador
 - `/quiz` - Quiz interativo
 - `/trailers` - Busca e listagem de trailers
 
-## Variaveis de Ambiente
+## Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz seguindo o modelo de `.env.example`.
 
 ```txt
 TMDB_API_KEY=SuaChaveDaAPI_Aqui
 NEWS_API_KEY=SuaChaveDaAPI_Aqui
+NEWS_DEBUG_LOGS=false
 ```
 
-`TMDB_API_KEY` e obrigatoria para filmes, series, quiz e trailers.
+`TMDB_API_KEY` é obrigatória para filmes, séries, quiz e trailers.
 
-`NEWS_API_KEY` e opcional para noticias. Quando configurada, ela complementa as noticias do Google News RSS e ajuda a aumentar a quantidade de resultados recentes.
+`NEWS_API_KEY` é opcional para notícias. Quando configurada, ela complementa o Google News RSS e ajuda a aumentar a quantidade de resultados recentes.
+
+`NEWS_DEBUG_LOGS=true` liga logs informativos da busca de notícias. Por padrão, esses logs ficam desligados para evitar ruído em produção.
 
 ## Como Rodar Localmente
+
+Use Node.js 22. O projeto inclui `.nvmrc` e `engines` para deixar essa versão explícita.
 
 ```bash
 npm install
@@ -98,13 +121,33 @@ npm run lint
 npm run format:check
 npm run format
 npm test
+npm run test:e2e
+npm run test:e2e:ui
 ```
+
+Antes de rodar os testes e2e pela primeira vez:
+
+```bash
+npx playwright install chromium
+```
+
+## Qualidade
+
+O projeto possui GitHub Actions em `.github/workflows/ci.yml`. A pipeline executa:
+
+```bash
+npm ci
+npm run format:check
+npm run lint
+npm test
+npm run build
+```
+
+Os testes e2e com Playwright já estão preparados em `tests/e2e/`, mas ficam fora do CI principal para manter a pipeline rápida.
 
 ## Deploy
 
-O projeto esta configurado para Netlify via `netlify.toml`.
-
-Config atual:
+O projeto está configurado para Netlify via `netlify.toml`.
 
 ```toml
 [build]
@@ -115,15 +158,24 @@ Config atual:
   package = "@netlify/plugin-nextjs"
 ```
 
-No painel da Netlify, configure as variaveis:
+No painel da Netlify, configure:
 
 - `TMDB_API_KEY`
 - `NEWS_API_KEY`
+- `NEWS_DEBUG_LOGS=false`
 
-## Observacoes Importantes
+## Decisões Arquiteturais
 
-- Favoritos ainda nao usam banco real. Eles ficam no navegador da pessoa via `localStorage`, acessados por uma camada de repositorio local.
-- Para sincronizar favoritos entre dispositivos, o proximo passo seria trocar o repositorio local por uma implementacao com autenticacao e banco, como Supabase.
-- A traducao de noticias e manual: a pessoa precisa clicar no icone de globo.
-- As noticias dependem de cache em memoria e de fontes externas; a quantidade de noticias recentes pode variar conforme Google News, NewsAPI e limites das APIs.
-- O projeto depende de APIs externas, entao dados podem variar conforme disponibilidade e limites dessas APIs.
+- A camada `services` concentra chamadas externas e normalização, evitando regras espalhadas pelos componentes.
+- A camada `repositories` isola persistência local e facilita uma futura troca para banco/autenticação.
+- Server Actions funcionam como ponte entre componentes e serviços.
+- O logger central evita `console.log` solto e permite controlar logs informativos por variável de ambiente.
+- A ordenação de notícias considera o fuso `America/Sao_Paulo`, priorizando notícias do dia atual.
+
+## Próximos Passos
+
+- Adicionar o link de deploy no campo About do GitHub.
+- Expandir testes e2e para busca, favoritos, tema e quiz completo.
+- Evoluir watchlist para autenticação e banco de dados.
+- Adicionar screenshots ou GIF curto da aplicação no README.
+- Melhorar navegação por teclado da busca com setas e seleção por Enter.

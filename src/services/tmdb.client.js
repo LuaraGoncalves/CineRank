@@ -22,11 +22,14 @@ export function buildTmdbUrl(path, params = {}) {
   return url.toString();
 }
 
-export async function requestTmdb(path, params = {}) {
+export async function requestTmdb(path, params = {}, fetchOptions = {}) {
   const url = buildTmdbUrl(path, params);
   if (!url) return null;
 
-  const response = await fetch(url);
+  const hasFetchOptions = Object.keys(fetchOptions).length > 0;
+  const response = hasFetchOptions
+    ? await fetch(url, fetchOptions)
+    : await fetch(url);
   if (!response.ok) return null;
 
   return response.json();

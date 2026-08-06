@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '../../../src/core/logger.js';
 import { WatchlistRepository } from '../../../src/repositories/watchlist.repository.js';
 
 export default function SaveButton({ movie }) {
@@ -47,7 +48,9 @@ export default function SaveButton({ movie }) {
       }
     } catch (error) {
       showToast('Erro ao salvar no dispositivo');
-      console.error(error);
+      logger.error('Watchlist_Toggle_Failed', error, {
+        movieId: movie.id
+      });
     } finally {
       setLoading(false);
     }

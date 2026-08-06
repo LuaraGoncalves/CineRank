@@ -13,6 +13,7 @@ export default function SearchBox() {
   const [query, setQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const searchRef = useRef(null);
+  const inputRef = useRef(null);
   const router = useRouter();
   const { results, isSearching, showResults, setShowResults, minSearchLength } =
     useSearchSuggestions(query, searchMulti, {
@@ -35,7 +36,7 @@ export default function SearchBox() {
   const openSearch = () => {
     setIsSearchActive((prev) => !prev);
     if (!isSearchActive) {
-      setTimeout(() => document.getElementById('search-input')?.focus(), 100);
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 
@@ -45,6 +46,14 @@ export default function SearchBox() {
     router.push(`/filme/${item.id}?type=${item.media_type}`);
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setShowResults(false);
+      setIsSearchActive(false);
+      inputRef.current?.blur();
+    }
+  };
+
   return (
     <div
       className={`search-container ${isSearchActive ? 'active' : ''}`}
@@ -52,18 +61,31 @@ export default function SearchBox() {
       ref={searchRef}
     >
       <input
+        ref={inputRef}
         type="text"
+        role="combobox"
         id="search-input"
         placeholder="Pesquisar..."
         aria-label="Pesquisar"
+        aria-autocomplete="list"
+        aria-controls="search-results"
+        aria-expanded={showResults}
         autoComplete="off"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
+        onKeyDown={handleKeyDown}
         onFocus={() => {
           if (query.trim().length >= minSearchLength) setShowResults(true);
         }}
       />
-      <button id="search-button" aria-label="Pesquisar" onClick={openSearch}>
+      <button
+        id="search-button"
+        type="button"
+        aria-label="Pesquisar"
+        aria-controls="search-input"
+        aria-expanded={isSearchActive}
+        onClick={openSearch}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -82,13 +104,22 @@ export default function SearchBox() {
       </button>
 
       {showResults && (
-        <div className="search-results-dropdown">
+        <div
+          className="search-results-dropdown"
+          id="search-results"
+          role="listbox"
+          aria-label="Sugestões de busca"
+        >
           {isSearching ? (
-            <div className="search-results-state">Buscando...</div>
+            <div className="search-results-state" role="status">
+              Buscando...
+            </div>
           ) : results.length > 0 ? (
             results.map((item) => (
               <button
                 type="button"
+                role="option"
+                aria-selected="false"
                 key={`${item.media_type}-${item.id}`}
                 onClick={() => openResult(item)}
                 className="search-result-item"
@@ -121,7 +152,7 @@ export default function SearchBox() {
               </button>
             ))
           ) : (
-            <div className="search-results-state">
+            <div className="search-results-state" role="status">
               Nenhum resultado encontrado.
             </div>
           )}

@@ -10,23 +10,38 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
   },
   "devDependencies": {
-    "@netlify/plugin-nextjs": "^5.15.12",
+    "@netlify/plugin-nextjs": "^5.15.13",
+    "@playwright/test": "^1.62.1",
     "cross-env": "^7.0.3",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.2.11",
+    "eslint-config-next": "^16.3.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "prettier": "^3.9.6"
   },
   "jest": {
     "transform": {},
-    "testEnvironment": "jsdom"
+    "testEnvironment": "jsdom",
+    "testPathIgnorePatterns": [
+      "<rootDir>/.next/",
+      "<rootDir>/tests/e2e/"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.next/",
+      "<rootDir>/tests/e2e/"
+    ]
   },
   "dependencies": {
-    "next": "^16.2.11",
+    "next": "^16.3.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "rss-parser": "^3.13.0"
