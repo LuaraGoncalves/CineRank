@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'CineRank - descubra filmes, séries, trailers e notícias';
+export const alt = 'Reelvio - descubra filmes, séries, trailers e notícias';
 export const size = {
   width: 1200,
   height: 630
@@ -47,9 +47,9 @@ export default function OpenGraphImage() {
             fontWeight: 900
           }}
         >
-          C
+          R
         </div>
-        CineRank
+        Reelvio
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>

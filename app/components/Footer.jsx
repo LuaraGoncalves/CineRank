@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-col footer-brand">
-          <h3>CineRank</h3>
+          <h3>Reelvio</h3>
           <p>© 2025 Todos os direitos reservados.</p>
         </div>
 

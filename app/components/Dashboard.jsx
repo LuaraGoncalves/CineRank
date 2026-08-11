@@ -159,7 +159,7 @@ export default function Dashboard({
 
   return (
     <section id="dashboard" aria-labelledby="dashboard-title">
-      <h1 id="dashboard-title">CineRank</h1>
+      <h1 id="dashboard-title">Reelvio</h1>
       <div
         className="filter-container dashboard-filters"
         role="search"

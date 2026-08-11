@@ -1,7 +1,7 @@
 import '../src/styles/main.css';
 
 const siteUrl = 'https://cineerank.netlify.app';
-const siteName = 'CineRank';
+const siteName = 'Reelvio';
 const siteDescription =
   'Descubra filmes e séries, veja trailers, acompanhe notícias do cinema e salve seus favoritos em uma experiência moderna com Next.js.';
 
@@ -9,12 +9,12 @@ export const metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: siteName,
   title: {
-    default: 'CineRank - Filmes, séries, trailers e notícias',
+    default: 'Reelvio - Filmes, séries, trailers e notícias',
     template: `%s | ${siteName}`
   },
   description: siteDescription,
   keywords: [
-    'CineRank',
+    'Reelvio',
     'filmes',
     'séries',
     'trailers',
@@ -34,20 +34,20 @@ export const metadata = {
     locale: 'pt_BR',
     url: '/',
     siteName,
-    title: 'CineRank - Filmes, séries, trailers e notícias',
+    title: 'Reelvio - Filmes, séries, trailers e notícias',
     description: siteDescription,
     images: [
       {
         url: '/opengraph-image',
         width: 1200,
         height: 630,
-        alt: 'CineRank - descubra filmes, séries, trailers e notícias'
+        alt: 'Reelvio - descubra filmes, séries, trailers e notícias'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CineRank - Filmes, séries, trailers e notícias',
+    title: 'Reelvio - Filmes, séries, trailers e notícias',
     description: siteDescription,
     images: ['/twitter-image']
   },

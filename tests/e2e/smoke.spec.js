@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('opens the home page', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page).toHaveTitle(/CineRank/);
+  await expect(page).toHaveTitle(/Reelvio/);
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.locator('#dashboard-title')).toBeVisible();
 });
