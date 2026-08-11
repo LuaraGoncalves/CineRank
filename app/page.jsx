@@ -10,12 +10,14 @@ async function getTrendingMovies() {
     if (result.ok) {
       return {
         movies: result.data,
-        error: null
+        error: null,
+        errorStatus: null
       };
     }
 
     return {
       movies: [],
+      errorStatus: result.status,
       error:
         result.status === SERVICE_STATUS.MISSING_CONFIG
           ? 'A chave da API não está configurada. Confira as variáveis de ambiente no Netlify.'
@@ -26,6 +28,7 @@ async function getTrendingMovies() {
     logger.error('Home_TrendingMovies_Failed', error);
     return {
       movies: [],
+      errorStatus: SERVICE_STATUS.ERROR,
       error:
         'Não foi possível carregar filmes e séries agora. Tente novamente em instantes.'
     };
@@ -33,11 +36,15 @@ async function getTrendingMovies() {
 }
 
 export default async function Home() {
-  const { movies, error } = await getTrendingMovies();
+  const { movies, error, errorStatus } = await getTrendingMovies();
 
   return (
     <>
-      <Dashboard initialMovies={movies} initialMoviesError={error} />
+      <Dashboard
+        initialMovies={movies}
+        initialMoviesError={error}
+        initialMoviesErrorStatus={errorStatus}
+      />
     </>
   );
 }

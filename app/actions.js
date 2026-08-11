@@ -27,6 +27,7 @@ function toActionResult(result, fallbackData, fallbackMessage) {
   if (result?.ok) {
     return {
       ok: true,
+      status: result.status,
       data: result.data ?? fallbackData,
       error: null
     };
@@ -34,6 +35,7 @@ function toActionResult(result, fallbackData, fallbackMessage) {
 
   return {
     ok: false,
+    status: result?.status || SERVICE_STATUS.ERROR,
     data: fallbackData,
     error: getFriendlyApiError(result, fallbackMessage)
   };
@@ -43,6 +45,7 @@ function toActionFailure(error, fallbackData, fallbackMessage) {
   logger.error('Action_Result_Failed', error);
   return {
     ok: false,
+    status: SERVICE_STATUS.ERROR,
     data: fallbackData,
     error: fallbackMessage
   };

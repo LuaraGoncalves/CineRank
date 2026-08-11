@@ -4,17 +4,23 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import MovieCard from './MovieCard';
 import CustomSelect from './CustomSelect';
 import SkeletonCard from './SkeletonCard';
+import FeedbackState from './FeedbackState';
 import { fetchFilteredMoviesResult, fetchGenresResult } from '../actions';
+import { SERVICE_STATUS } from '../../src/services/service-result.js';
 
 export default function Dashboard({
   initialMovies,
-  initialMoviesError = null
+  initialMoviesError = null,
+  initialMoviesErrorStatus = null
 }) {
   const initialMovieCount = initialMovies?.length || 0;
   const [movies, setMovies] = useState(initialMovies || []);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [movieError, setMovieError] = useState(initialMoviesError);
+  const [movieErrorStatus, setMovieErrorStatus] = useState(
+    initialMoviesErrorStatus
+  );
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
@@ -55,6 +61,7 @@ export default function Dashboard({
         fetchFilteredMoviesResult({ ...filters, page: 1 })
           .then((result) => {
             setMovieError(result.error);
+            setMovieErrorStatus(result.status);
             setMovies(result.data);
             setHasMore(result.ok && result.data.length > 0);
           })
@@ -69,6 +76,7 @@ export default function Dashboard({
         setPage(1); // reseta pagina
         const result = await fetchFilteredMoviesResult({ ...filters, page: 1 });
         setMovieError(result.error);
+        setMovieErrorStatus(result.status);
         setMovies(result.data);
         setHasMore(result.ok && result.data.length > 0);
       } finally {
@@ -87,6 +95,7 @@ export default function Dashboard({
         setLoadingMore(true);
         const result = await fetchFilteredMoviesResult({ ...filters, page });
         setMovieError(result.error);
+        setMovieErrorStatus(result.status);
 
         if (!result.ok || result.data.length === 0) {
           setHasMore(false);
@@ -138,8 +147,12 @@ export default function Dashboard({
 
   const retryMovies = () => {
     setMovieError(null);
+    setMovieErrorStatus(null);
     setReloadKey((currentKey) => currentKey + 1);
   };
+
+  const movieFeedbackVariant =
+    movieErrorStatus === SERVICE_STATUS.MISSING_CONFIG ? 'warning' : 'error';
 
   const currentYear = new Date().getFullYear();
   const years = Array.from(new Array(50), (val, index) => currentYear - index);
@@ -214,13 +227,17 @@ export default function Dashboard({
         {loading ? (
           Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)
         ) : movieError && movies.length === 0 ? (
-          <div className="error-state">
-            <h3>Não conseguimos carregar os conteúdos</h3>
-            <p>{movieError}</p>
-            <button type="button" className="retry-btn" onClick={retryMovies}>
-              Tentar novamente
-            </button>
-          </div>
+          <FeedbackState
+            variant={movieFeedbackVariant}
+            title={
+              movieErrorStatus === SERVICE_STATUS.MISSING_CONFIG
+                ? 'Configuração necessária'
+                : 'Não conseguimos carregar os conteúdos'
+            }
+            message={movieError}
+            actionLabel="Tentar novamente"
+            onAction={retryMovies}
+          />
         ) : movies.length > 0 ? (
           <>
             {movies.map((movie, index) => {
@@ -241,23 +258,20 @@ export default function Dashboard({
               ))}
 
             {movieError && (
-              <div className="error-state">
-                <h3>Não conseguimos carregar mais conteúdos</h3>
-                <p>{movieError}</p>
-                <button
-                  type="button"
-                  className="retry-btn"
-                  onClick={retryMovies}
-                >
-                  Tentar novamente
-                </button>
-              </div>
+              <FeedbackState
+                variant={movieFeedbackVariant}
+                title="Não conseguimos carregar mais conteúdos"
+                message={movieError}
+                actionLabel="Tentar novamente"
+                onAction={retryMovies}
+              />
             )}
           </>
         ) : (
-          <p className="empty-state-text">
-            Nenhum filme encontrado para os filtros selecionados.
-          </p>
+          <FeedbackState
+            title="Nenhum conteúdo encontrado"
+            message="Tente remover algum filtro ou pesquisar por outro tipo de conteúdo."
+          />
         )}
       </div>
     </section>
