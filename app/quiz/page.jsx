@@ -1,6 +1,6 @@
 'use client';
 
-import { fetchPopularMoviesForQuiz } from '../actions';
+import { fetchPopularMoviesForQuizResult } from '../actions';
 import { useQuizGame } from '../../src/hooks/useQuizGame.js';
 
 export default function Quiz() {
@@ -19,7 +19,7 @@ export default function Quiz() {
     selectAnswer,
     nextQuestion,
     restartQuiz
-  } = useQuizGame(fetchPopularMoviesForQuiz);
+  } = useQuizGame(fetchPopularMoviesForQuizResult);
 
   return (
     <section id="quiz" aria-labelledby="quiz-title">

@@ -62,27 +62,53 @@ export function useNotifications(fetchNewsFn) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_NEWS);
   const [hasUnread, setHasUnread] = useState(false);
   const [translations, setTranslations] = useState({});
+  const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     async function loadNews() {
       setLoading(true);
-      const articles = await fetchNewsFn();
-      const sortedArticles = sortNewsByCurrentDay(articles);
-      setNews(sortedArticles);
+      setError(null);
+      setVisibleCount(INITIAL_VISIBLE_NEWS);
 
-      const lastSeen = StorageService.getLastSeenNewsDate();
-      if (
-        sortedArticles.length > 0 &&
-        (!lastSeen ||
-          new Date(sortedArticles[0].publishedAt) > new Date(lastSeen))
-      ) {
-        setHasUnread(true);
+      try {
+        const response = await fetchNewsFn();
+        const articles = Array.isArray(response)
+          ? response
+          : response?.data || [];
+
+        if (response?.ok === false) {
+          setNews([]);
+          setHasUnread(false);
+          setError(response.error);
+          return;
+        }
+
+        const sortedArticles = sortNewsByCurrentDay(articles);
+        setNews(sortedArticles);
+
+        const lastSeen = StorageService.getLastSeenNewsDate();
+        if (
+          sortedArticles.length > 0 &&
+          (!lastSeen ||
+            new Date(sortedArticles[0].publishedAt) > new Date(lastSeen))
+        ) {
+          setHasUnread(true);
+        }
+      } catch (loadError) {
+        logger.error('Notification_LoadNews_Failed', loadError);
+        setNews([]);
+        setHasUnread(false);
+        setError(
+          'Não foi possível carregar as notícias agora. Tente novamente em instantes.'
+        );
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     loadNews();
-  }, [fetchNewsFn]);
+  }, [fetchNewsFn, reloadKey]);
 
   const handleOpen = () => {
     setIsOpen((prev) => {
@@ -126,16 +152,22 @@ export function useNotifications(fetchNewsFn) {
     setVisibleCount((prev) => prev + NEWS_PER_LOAD);
   };
 
+  const reloadNews = () => {
+    setReloadKey((currentKey) => currentKey + 1);
+  };
+
   return {
     isOpen,
     setIsOpen,
     news,
     loading,
+    error,
     visibleCount,
     hasUnread,
     translations,
     handleOpen,
     handleTranslate,
+    reloadNews,
     showMore
   };
 }

@@ -10,7 +10,43 @@ import { fetchTrendingTrailers as fetchTrendingTrailersService } from '../src/se
 import { fetchPopularMoviesForQuiz as fetchPopularMoviesForQuizService } from '../src/services/quiz.service.js';
 import { fetchNews as fetchNewsService } from '../src/services/news.service.js';
 import { logger } from '../src/core/logger.js';
-import { unwrapServiceData } from '../src/services/service-result.js';
+import {
+  SERVICE_STATUS,
+  unwrapServiceData
+} from '../src/services/service-result.js';
+
+function getFriendlyApiError(result, fallbackMessage) {
+  if (result?.status === SERVICE_STATUS.MISSING_CONFIG) {
+    return 'A chave da API não está configurada. Confira as variáveis de ambiente no Netlify.';
+  }
+
+  return result?.error || fallbackMessage;
+}
+
+function toActionResult(result, fallbackData, fallbackMessage) {
+  if (result?.ok) {
+    return {
+      ok: true,
+      data: result.data ?? fallbackData,
+      error: null
+    };
+  }
+
+  return {
+    ok: false,
+    data: fallbackData,
+    error: getFriendlyApiError(result, fallbackMessage)
+  };
+}
+
+function toActionFailure(error, fallbackData, fallbackMessage) {
+  logger.error('Action_Result_Failed', error);
+  return {
+    ok: false,
+    data: fallbackData,
+    error: fallbackMessage
+  };
+}
 
 export async function searchMulti(query = '') {
   try {
@@ -30,12 +66,44 @@ export async function fetchFilteredMovies(filters = {}) {
   }
 }
 
+export async function fetchFilteredMoviesResult(filters = {}) {
+  try {
+    return toActionResult(
+      await fetchFilteredMoviesService(filters),
+      [],
+      'Não foi possível carregar filmes e séries agora. Tente novamente em instantes.'
+    );
+  } catch (error) {
+    return toActionFailure(
+      error,
+      [],
+      'Não foi possível carregar filmes e séries agora. Tente novamente em instantes.'
+    );
+  }
+}
+
 export async function fetchGenres(type = 'movie') {
   try {
     return unwrapServiceData(await fetchGenresService(type), []);
   } catch (error) {
     logger.error('Action_FetchGenres_Failed', error);
     return [];
+  }
+}
+
+export async function fetchGenresResult(type = 'movie') {
+  try {
+    return toActionResult(
+      await fetchGenresService(type),
+      [],
+      'Não foi possível carregar os gêneros agora.'
+    );
+  } catch (error) {
+    return toActionFailure(
+      error,
+      [],
+      'Não foi possível carregar os gêneros agora.'
+    );
   }
 }
 
@@ -60,6 +128,22 @@ export async function fetchTrendingTrailers(query = '') {
   }
 }
 
+export async function fetchTrendingTrailersResult(query = '') {
+  try {
+    return toActionResult(
+      await fetchTrendingTrailersService(query),
+      [],
+      'Não foi possível carregar os trailers agora. Tente novamente em instantes.'
+    );
+  } catch (error) {
+    return toActionFailure(
+      error,
+      [],
+      'Não foi possível carregar os trailers agora. Tente novamente em instantes.'
+    );
+  }
+}
+
 export async function fetchPopularMoviesForQuiz() {
   try {
     return unwrapServiceData(await fetchPopularMoviesForQuizService(), []);
@@ -69,11 +153,43 @@ export async function fetchPopularMoviesForQuiz() {
   }
 }
 
+export async function fetchPopularMoviesForQuizResult() {
+  try {
+    return toActionResult(
+      await fetchPopularMoviesForQuizService(),
+      [],
+      'Não foi possível carregar o quiz agora. Tente novamente em instantes.'
+    );
+  } catch (error) {
+    return toActionFailure(
+      error,
+      [],
+      'Não foi possível carregar o quiz agora. Tente novamente em instantes.'
+    );
+  }
+}
+
 export async function fetchNews() {
   try {
     return unwrapServiceData(await fetchNewsService(), []);
   } catch (error) {
     logger.error('Action_FetchNews_Failed', error);
     return [];
+  }
+}
+
+export async function fetchNewsResult() {
+  try {
+    return toActionResult(
+      await fetchNewsService(),
+      [],
+      'Não foi possível carregar as notícias agora. Tente novamente em instantes.'
+    );
+  } catch (error) {
+    return toActionFailure(
+      error,
+      [],
+      'Não foi possível carregar as notícias agora. Tente novamente em instantes.'
+    );
   }
 }

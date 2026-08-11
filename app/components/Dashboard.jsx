@@ -4,15 +4,20 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import MovieCard from './MovieCard';
 import CustomSelect from './CustomSelect';
 import SkeletonCard from './SkeletonCard';
-import { fetchFilteredMovies, fetchGenres } from '../actions';
+import { fetchFilteredMoviesResult, fetchGenresResult } from '../actions';
 
-export default function Dashboard({ initialMovies }) {
+export default function Dashboard({
+  initialMovies,
+  initialMoviesError = null
+}) {
   const initialMovieCount = initialMovies?.length || 0;
   const [movies, setMovies] = useState(initialMovies || []);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [movieError, setMovieError] = useState(initialMoviesError);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
   const hasMountedRef = useRef(false);
   const observer = useRef();
 
@@ -32,8 +37,8 @@ export default function Dashboard({ initialMovies }) {
         return;
       }
       try {
-        const data = await fetchGenres(filters.type);
-        setGenres(data);
+        const result = await fetchGenresResult(filters.type);
+        setGenres(result.data);
       } catch {
         setGenres([]);
       }
@@ -47,10 +52,11 @@ export default function Dashboard({ initialMovies }) {
       if (initialMovieCount === 0) {
         setLoading(true);
         setPage(1);
-        fetchFilteredMovies({ ...filters, page: 1 })
-          .then((data) => {
-            setMovies(data);
-            setHasMore(data.length > 0);
+        fetchFilteredMoviesResult({ ...filters, page: 1 })
+          .then((result) => {
+            setMovieError(result.error);
+            setMovies(result.data);
+            setHasMore(result.ok && result.data.length > 0);
           })
           .finally(() => setLoading(false));
       }
@@ -61,16 +67,17 @@ export default function Dashboard({ initialMovies }) {
       try {
         setLoading(true);
         setPage(1); // reseta pagina
-        const data = await fetchFilteredMovies({ ...filters, page: 1 });
-        setMovies(data);
-        setHasMore(data.length > 0);
+        const result = await fetchFilteredMoviesResult({ ...filters, page: 1 });
+        setMovieError(result.error);
+        setMovies(result.data);
+        setHasMore(result.ok && result.data.length > 0);
       } finally {
         setLoading(false);
       }
     }
 
     loadInitialMovies();
-  }, [filters, initialMovieCount]);
+  }, [filters, initialMovieCount, reloadKey]);
 
   useEffect(() => {
     if (page === 1) return; // a primeira pagina carrega no filtro
@@ -78,13 +85,15 @@ export default function Dashboard({ initialMovies }) {
     async function loadMoreMovies() {
       try {
         setLoadingMore(true);
-        const data = await fetchFilteredMovies({ ...filters, page });
-        if (data.length === 0) {
+        const result = await fetchFilteredMoviesResult({ ...filters, page });
+        setMovieError(result.error);
+
+        if (!result.ok || result.data.length === 0) {
           setHasMore(false);
         } else {
           setMovies((prev) => {
             // Remove duplicates se a API retornar os mesmos itens
-            const newMovies = data.filter(
+            const newMovies = result.data.filter(
               (d) => !prev.some((p) => p.id === d.id)
             );
             return [...prev, ...newMovies];
@@ -125,6 +134,11 @@ export default function Dashboard({ initialMovies }) {
       [name]: value,
       ...(name === 'type' ? { genre: 'all' } : {})
     }));
+  };
+
+  const retryMovies = () => {
+    setMovieError(null);
+    setReloadKey((currentKey) => currentKey + 1);
   };
 
   const currentYear = new Date().getFullYear();
@@ -199,6 +213,14 @@ export default function Dashboard({ initialMovies }) {
       >
         {loading ? (
           Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)
+        ) : movieError && movies.length === 0 ? (
+          <div className="error-state">
+            <h3>Não conseguimos carregar os conteúdos</h3>
+            <p>{movieError}</p>
+            <button type="button" className="retry-btn" onClick={retryMovies}>
+              Tentar novamente
+            </button>
+          </div>
         ) : movies.length > 0 ? (
           <>
             {movies.map((movie, index) => {
@@ -217,6 +239,20 @@ export default function Dashboard({ initialMovies }) {
               Array.from({ length: 5 }).map((_, i) => (
                 <SkeletonCard key={`skel-${i}`} />
               ))}
+
+            {movieError && (
+              <div className="error-state">
+                <h3>Não conseguimos carregar mais conteúdos</h3>
+                <p>{movieError}</p>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  onClick={retryMovies}
+                >
+                  Tentar novamente
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <p className="empty-state-text">

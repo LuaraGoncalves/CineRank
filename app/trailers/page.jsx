@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchTrendingTrailers } from '../actions';
+import { fetchTrendingTrailersResult } from '../actions';
 
 const INITIAL_VISIBLE_TRAILERS = 6;
 const TRAILERS_PER_LOAD = 3;
@@ -10,14 +10,18 @@ export default function Trailers() {
   const [trailers, setTrailers] = useState([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_TRAILERS);
 
   useEffect(() => {
     const loadTrailers = async () => {
       setLoading(true);
+      setError(null);
       setVisibleCount(INITIAL_VISIBLE_TRAILERS);
-      const data = await fetchTrendingTrailers(query);
-      setTrailers(data);
+      const result = await fetchTrendingTrailersResult(query);
+      setTrailers(result.data);
+      setError(result.error);
       setLoading(false);
     };
 
@@ -26,7 +30,7 @@ export default function Trailers() {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query]);
+  }, [query, reloadKey]);
 
   const visibleTrailers = trailers.slice(0, visibleCount);
   const hasMoreTrailers = visibleCount < trailers.length;
@@ -78,6 +82,18 @@ export default function Trailers() {
       {loading ? (
         <div className="loading-panel">
           <div className="spinner"></div>
+        </div>
+      ) : error ? (
+        <div className="error-state">
+          <h3>Não conseguimos carregar os trailers</h3>
+          <p>{error}</p>
+          <button
+            type="button"
+            className="retry-btn"
+            onClick={() => setReloadKey((currentKey) => currentKey + 1)}
+          >
+            Tentar novamente
+          </button>
         </div>
       ) : trailers.length > 0 ? (
         <>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
-import { fetchNews } from '../actions';
+import { fetchNewsResult } from '../actions';
 import {
   NEWS_TIME_ZONE,
   useNotifications
@@ -26,13 +26,15 @@ export default function NotificationModal() {
     setIsOpen,
     news,
     loading,
+    error,
     visibleCount,
     hasUnread,
     translations,
     handleOpen,
     handleTranslate,
+    reloadNews,
     showMore
-  } = useNotifications(fetchNews);
+  } = useNotifications(fetchNewsResult);
 
   const closeModal = useCallback(() => {
     setIsOpen(false);
@@ -171,6 +173,17 @@ export default function NotificationModal() {
 
           {loading ? (
             <p className="notification-state">Buscando notícias...</p>
+          ) : error ? (
+            <div className="notification-state notification-error-state">
+              <p>{error}</p>
+              <button
+                type="button"
+                className="notification-more-button"
+                onClick={reloadNews}
+              >
+                Tentar novamente
+              </button>
+            </div>
           ) : news.length > 0 ? (
             <div className="notification-list">
               {news.slice(0, visibleCount).map((article, i) => {
