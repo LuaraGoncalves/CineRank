@@ -1,14 +1,26 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { fetchNews } from '../actions';
 import {
   NEWS_TIME_ZONE,
   useNotifications
 } from '../../src/hooks/useNotifications.js';
 
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])'
+].join(',');
+
 export default function NotificationModal() {
   const containerRef = useRef(null);
+  const panelRef = useRef(null);
+  const bellButtonRef = useRef(null);
+  const previouslyFocusedElementRef = useRef(null);
   const {
     isOpen,
     setIsOpen,
@@ -22,19 +34,23 @@ export default function NotificationModal() {
     showMore
   } = useNotifications(fetchNews);
 
+  const closeModal = useCallback(() => {
+    setIsOpen(false);
+  }, [setIsOpen]);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target)
       ) {
-        setIsOpen(false);
+        closeModal();
       }
     }
 
     function handleEscape(event) {
       if (event.key === 'Escape') {
-        setIsOpen(false);
+        closeModal();
       }
     }
 
@@ -44,11 +60,59 @@ export default function NotificationModal() {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [setIsOpen]);
+  }, [closeModal]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    previouslyFocusedElementRef.current = document.activeElement;
+    const fallbackFocusedElement = bellButtonRef.current;
+    const firstFocusableElement =
+      panelRef.current?.querySelector(FOCUSABLE_SELECTOR);
+
+    firstFocusableElement?.focus();
+
+    return () => {
+      const previousElement = previouslyFocusedElementRef.current;
+      if (previousElement instanceof HTMLElement) {
+        previousElement.focus();
+      } else {
+        fallbackFocusedElement?.focus();
+      }
+    };
+  }, [isOpen]);
+
+  const handlePanelKeyDown = (event) => {
+    if (event.key !== 'Tab' || !panelRef.current) return;
+
+    const focusableElements = Array.from(
+      panelRef.current.querySelectorAll(FOCUSABLE_SELECTOR)
+    ).filter((element) => element.offsetParent !== null);
+
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+      return;
+    }
+
+    if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  };
 
   return (
     <div className="notification-container" ref={containerRef}>
       <button
+        ref={bellButtonRef}
         id="notification-bell"
         className="notification-bell"
         aria-label="Visualizar notificações e notícias"
@@ -80,11 +144,13 @@ export default function NotificationModal() {
 
       {isOpen && (
         <div
+          ref={panelRef}
           className="notification-panel"
           id="notification-panel"
           role="dialog"
-          aria-modal="false"
+          aria-modal="true"
           aria-labelledby="notification-panel-title"
+          onKeyDown={handlePanelKeyDown}
         >
           <div className="notification-panel-header">
             <h3
@@ -97,7 +163,7 @@ export default function NotificationModal() {
               type="button"
               className="notification-close-button"
               aria-label="Fechar notificações"
-              onClick={() => setIsOpen(false)}
+              onClick={closeModal}
             >
               &times;
             </button>
