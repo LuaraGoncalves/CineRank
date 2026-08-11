@@ -12,6 +12,7 @@ const SEARCH_DEBOUNCE_MS = 250;
 export default function SearchBox() {
   const [query, setQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [activeResultIndex, setActiveResultIndex] = useState(-1);
   const searchRef = useRef(null);
   const inputRef = useRef(null);
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function SearchBox() {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowResults(false);
         setIsSearchActive(false);
+        setActiveResultIndex(-1);
       }
     }
 
@@ -42,6 +44,7 @@ export default function SearchBox() {
 
   const openResult = (item) => {
     setShowResults(false);
+    setActiveResultIndex(-1);
     setQuery('');
     router.push(`/filme/${item.id}?type=${item.media_type}`);
   };
@@ -50,9 +53,65 @@ export default function SearchBox() {
     if (event.key === 'Escape') {
       setShowResults(false);
       setIsSearchActive(false);
+      setActiveResultIndex(-1);
       inputRef.current?.blur();
+      return;
+    }
+
+    if (!showResults || results.length === 0) return;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setActiveResultIndex((currentIndex) =>
+        currentIndex >= results.length - 1 ? 0 : currentIndex + 1
+      );
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setActiveResultIndex((currentIndex) =>
+        currentIndex <= 0 ? results.length - 1 : currentIndex - 1
+      );
+      return;
+    }
+
+    if (event.key === 'Home') {
+      event.preventDefault();
+      setActiveResultIndex(0);
+      return;
+    }
+
+    if (event.key === 'End') {
+      event.preventDefault();
+      setActiveResultIndex(results.length - 1);
+      return;
+    }
+
+    if (event.key === 'Enter' && activeResultIndex >= 0) {
+      event.preventDefault();
+      openResult(results[activeResultIndex]);
     }
   };
+
+  useEffect(() => {
+    if (!showResults || results.length === 0) {
+      setActiveResultIndex(-1);
+      return;
+    }
+
+    setActiveResultIndex((currentIndex) =>
+      currentIndex >= results.length ? 0 : currentIndex
+    );
+  }, [results, showResults]);
+
+  useEffect(() => {
+    if (activeResultIndex < 0) return;
+
+    document
+      .getElementById(`search-result-${activeResultIndex}`)
+      ?.scrollIntoView({ block: 'nearest' });
+  }, [activeResultIndex]);
 
   return (
     <div
@@ -70,9 +129,17 @@ export default function SearchBox() {
         aria-autocomplete="list"
         aria-controls="search-results"
         aria-expanded={showResults}
+        aria-activedescendant={
+          activeResultIndex >= 0
+            ? `search-result-${activeResultIndex}`
+            : undefined
+        }
         autoComplete="off"
         value={query}
-        onChange={(event) => setQuery(event.target.value)}
+        onChange={(event) => {
+          setQuery(event.target.value);
+          setActiveResultIndex(-1);
+        }}
         onKeyDown={handleKeyDown}
         onFocus={() => {
           if (query.trim().length >= minSearchLength) setShowResults(true);
@@ -115,14 +182,18 @@ export default function SearchBox() {
               Buscando...
             </div>
           ) : results.length > 0 ? (
-            results.map((item) => (
+            results.map((item, index) => (
               <button
                 type="button"
                 role="option"
-                aria-selected="false"
+                aria-selected={activeResultIndex === index}
+                id={`search-result-${index}`}
                 key={`${item.media_type}-${item.id}`}
                 onClick={() => openResult(item)}
-                className="search-result-item"
+                onMouseEnter={() => setActiveResultIndex(index)}
+                className={`search-result-item ${
+                  activeResultIndex === index ? 'active' : ''
+                }`}
               >
                 {item.poster_path ? (
                   <Image
