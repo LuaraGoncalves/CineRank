@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
-import { fetchNews } from '../actions';
+import { fetchNewsResult } from '../actions';
+import FeedbackState from './FeedbackState';
 import {
   NEWS_TIME_ZONE,
   useNotifications
@@ -26,13 +27,15 @@ export default function NotificationModal() {
     setIsOpen,
     news,
     loading,
+    error,
     visibleCount,
     hasUnread,
     translations,
     handleOpen,
     handleTranslate,
+    reloadNews,
     showMore
-  } = useNotifications(fetchNews);
+  } = useNotifications(fetchNewsResult);
 
   const closeModal = useCallback(() => {
     setIsOpen(false);
@@ -170,7 +173,21 @@ export default function NotificationModal() {
           </div>
 
           {loading ? (
-            <p className="notification-state">Buscando notícias...</p>
+            <FeedbackState
+              variant="loading"
+              title="Buscando notícias"
+              message="Estamos consultando as fontes mais recentes."
+              compact
+            />
+          ) : error ? (
+            <FeedbackState
+              variant="error"
+              title="Notícias indisponíveis"
+              message={error}
+              actionLabel="Tentar novamente"
+              onAction={reloadNews}
+              compact
+            />
           ) : news.length > 0 ? (
             <div className="notification-list">
               {news.slice(0, visibleCount).map((article, i) => {
@@ -238,6 +255,16 @@ export default function NotificationModal() {
                     <p className="notification-description">
                       {translations[i]?.description || article.description}
                     </p>
+                    {translations[i]?.loading && (
+                      <p className="notification-translation-state">
+                        Traduzindo notícia...
+                      </p>
+                    )}
+                    {translations[i]?.error && (
+                      <p className="notification-translation-state is-error">
+                        Não foi possível traduzir. Tente novamente pelo botão.
+                      </p>
+                    )}
                   </div>
                 );
               })}
@@ -254,7 +281,11 @@ export default function NotificationModal() {
               )}
             </div>
           ) : (
-            <p className="notification-state">Nenhuma notícia encontrada.</p>
+            <FeedbackState
+              title="Nenhuma notícia encontrada"
+              message="Assim que novas notícias forem encontradas, elas aparecem aqui."
+              compact
+            />
           )}
         </div>
       )}

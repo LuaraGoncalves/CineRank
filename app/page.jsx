@@ -1,23 +1,50 @@
 import Dashboard from './components/Dashboard';
 import { logger } from '../src/core/logger.js';
 import { fetchTrendingHomeMovies } from '../src/services/tmdb.service.js';
-import { unwrapServiceData } from '../src/services/service-result.js';
+import { SERVICE_STATUS } from '../src/services/service-result.js';
 
 async function getTrendingMovies() {
   try {
-    return unwrapServiceData(await fetchTrendingHomeMovies(), []);
+    const result = await fetchTrendingHomeMovies();
+
+    if (result.ok) {
+      return {
+        movies: result.data,
+        error: null,
+        errorStatus: null
+      };
+    }
+
+    return {
+      movies: [],
+      errorStatus: result.status,
+      error:
+        result.status === SERVICE_STATUS.MISSING_CONFIG
+          ? 'A chave da API não está configurada. Confira as variáveis de ambiente no Netlify.'
+          : result.error ||
+            'Não foi possível carregar filmes e séries agora. Tente novamente em instantes.'
+    };
   } catch (error) {
     logger.error('Home_TrendingMovies_Failed', error);
-    return [];
+    return {
+      movies: [],
+      errorStatus: SERVICE_STATUS.ERROR,
+      error:
+        'Não foi possível carregar filmes e séries agora. Tente novamente em instantes.'
+    };
   }
 }
 
 export default async function Home() {
-  const movies = await getTrendingMovies();
+  const { movies, error, errorStatus } = await getTrendingMovies();
 
   return (
     <>
-      <Dashboard initialMovies={movies} />
+      <Dashboard
+        initialMovies={movies}
+        initialMoviesError={error}
+        initialMoviesErrorStatus={errorStatus}
+      />
     </>
   );
 }

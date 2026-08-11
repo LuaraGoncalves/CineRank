@@ -95,7 +95,17 @@ export function useQuizGame(fetchPopularMoviesForQuizFn) {
 
     async function loadQuestions() {
       try {
-        const movies = await fetchPopularMoviesForQuizFn();
+        const response = await fetchPopularMoviesForQuizFn();
+        const movies = Array.isArray(response)
+          ? response
+          : response?.data || [];
+
+        if (response?.ok === false) {
+          setError(response.error);
+          setGameState('start');
+          return;
+        }
+
         const generatedQuestions = buildQuestions(movies);
 
         if (generatedQuestions.length === 0) {

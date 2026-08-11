@@ -63,7 +63,13 @@ export const StorageService = {
   },
 
   getHighScore: () =>
-    Number(getFirstStoredValue([STORAGE_KEYS.HIGH_SCORE, 'highScore']) || 0),
+    Number(
+      getFirstStoredValue([
+        STORAGE_KEYS.HIGH_SCORE,
+        'cinerank_high_score',
+        'highScore'
+      ]) || 0
+    ),
   setHighScore: (score) => {
     if (typeof localStorage === 'undefined') return;
     localStorage.setItem(STORAGE_KEYS.HIGH_SCORE, String(score));
@@ -82,7 +88,11 @@ export const StorageService = {
 
   getSearchHistory: () =>
     safeParseJSON(
-      getFirstStoredValue([STORAGE_KEYS.SEARCH_HISTORY, 'searchHistory']),
+      getFirstStoredValue([
+        STORAGE_KEYS.SEARCH_HISTORY,
+        'cinerank_search_history',
+        'searchHistory'
+      ]),
       []
     ),
   addSearchHistory: (query) => {

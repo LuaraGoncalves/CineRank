@@ -1,6 +1,7 @@
 'use client';
 
-import { fetchPopularMoviesForQuiz } from '../actions';
+import { fetchPopularMoviesForQuizResult } from '../actions';
+import FeedbackState from '../components/FeedbackState';
 import { useQuizGame } from '../../src/hooks/useQuizGame.js';
 
 export default function Quiz() {
@@ -19,7 +20,7 @@ export default function Quiz() {
     selectAnswer,
     nextQuestion,
     restartQuiz
-  } = useQuizGame(fetchPopularMoviesForQuiz);
+  } = useQuizGame(fetchPopularMoviesForQuizResult);
 
   return (
     <section id="quiz" aria-labelledby="quiz-title">
@@ -28,7 +29,14 @@ export default function Quiz() {
         {gameState === 'start' && (
           <div id="quiz-start-screen">
             <p>Teste seus conhecimentos sobre filmes e séries!</p>
-            {error && <p className="error-message">{error}</p>}
+            {error && (
+              <FeedbackState
+                variant="error"
+                title="Não conseguimos preparar o quiz"
+                message={error}
+                compact
+              />
+            )}
             <button id="start-quiz-btn" onClick={startQuiz}>
               Começar Quiz
             </button>

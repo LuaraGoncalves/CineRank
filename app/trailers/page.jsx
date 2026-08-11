@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchTrendingTrailers } from '../actions';
+import FeedbackState from '../components/FeedbackState';
+import { fetchTrendingTrailersResult } from '../actions';
+import { SERVICE_STATUS } from '../../src/services/service-result.js';
 
 const INITIAL_VISIBLE_TRAILERS = 6;
 const TRAILERS_PER_LOAD = 3;
@@ -10,14 +12,21 @@ export default function Trailers() {
   const [trailers, setTrailers] = useState([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [errorStatus, setErrorStatus] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_TRAILERS);
 
   useEffect(() => {
     const loadTrailers = async () => {
       setLoading(true);
+      setError(null);
+      setErrorStatus(null);
       setVisibleCount(INITIAL_VISIBLE_TRAILERS);
-      const data = await fetchTrendingTrailers(query);
-      setTrailers(data);
+      const result = await fetchTrendingTrailersResult(query);
+      setTrailers(result.data);
+      setError(result.error);
+      setErrorStatus(result.status);
       setLoading(false);
     };
 
@@ -26,10 +35,12 @@ export default function Trailers() {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query]);
+  }, [query, reloadKey]);
 
   const visibleTrailers = trailers.slice(0, visibleCount);
   const hasMoreTrailers = visibleCount < trailers.length;
+  const errorVariant =
+    errorStatus === SERVICE_STATUS.MISSING_CONFIG ? 'warning' : 'error';
 
   return (
     <section
@@ -76,9 +87,23 @@ export default function Trailers() {
       </div>
 
       {loading ? (
-        <div className="loading-panel">
-          <div className="spinner"></div>
-        </div>
+        <FeedbackState
+          variant="loading"
+          title="Carregando trailers"
+          message="Estamos buscando vídeos recentes no catálogo."
+        />
+      ) : error ? (
+        <FeedbackState
+          variant={errorVariant}
+          title={
+            errorStatus === SERVICE_STATUS.MISSING_CONFIG
+              ? 'Configuração necessária'
+              : 'Não conseguimos carregar os trailers'
+          }
+          message={error}
+          actionLabel="Tentar novamente"
+          onAction={() => setReloadKey((currentKey) => currentKey + 1)}
+        />
       ) : trailers.length > 0 ? (
         <>
           <div className="trailer-grid">
@@ -117,9 +142,10 @@ export default function Trailers() {
           )}
         </>
       ) : (
-        <div className="empty-state-panel">
-          <p>Nenhum trailer encontrado.</p>
-        </div>
+        <FeedbackState
+          title="Nenhum trailer encontrado"
+          message="Tente pesquisar outro filme ou limpar o campo de busca."
+        />
       )}
     </section>
   );

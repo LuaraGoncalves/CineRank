@@ -178,8 +178,12 @@ export default function SearchBox() {
           aria-label="Sugestões de busca"
         >
           {isSearching ? (
-            <div className="search-results-state" role="status">
-              Buscando...
+            <div
+              className="search-results-state search-results-state-loading"
+              role="status"
+            >
+              <strong>Buscando...</strong>
+              <span>Procurando filmes e séries com esse texto.</span>
             </div>
           ) : results.length > 0 ? (
             results.map((item, index) => (
@@ -223,8 +227,12 @@ export default function SearchBox() {
               </button>
             ))
           ) : (
-            <div className="search-results-state" role="status">
-              Nenhum resultado encontrado.
+            <div
+              className="search-results-state search-results-state-empty"
+              role="status"
+            >
+              <strong>Nenhum resultado encontrado</strong>
+              <span>Tente outro nome ou menos palavras.</span>
             </div>
           )}
         </div>

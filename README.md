@@ -1,8 +1,18 @@
-# CineRank
+# Reelvio
 
 [![CI](https://github.com/LuaraGoncalves/CineRank/actions/workflows/ci.yml/badge.svg)](https://github.com/LuaraGoncalves/CineRank/actions/workflows/ci.yml)
 
-CineRank é uma aplicação Next.js para descobrir filmes, séries, trailers e notícias do universo audiovisual. O projeto consome APIs externas, organiza regras em camadas, salva preferências no navegador e possui testes automatizados para proteger os fluxos principais.
+Reelvio é uma aplicação Next.js para descobrir filmes, séries, trailers e notícias do universo audiovisual. O projeto consome APIs externas, organiza regras em camadas, salva preferências no navegador e possui testes automatizados para proteger os fluxos principais.
+
+## Preview
+
+### Dashboard
+
+![Dashboard do Reelvio com cards de filmes, filtros e navegação principal](docs/screenshots/home-dashboard.png)
+
+### Quiz
+
+![Tela inicial do quiz de filmes e séries do Reelvio](docs/screenshots/quiz.png)
 
 ## Destaques Técnicos
 
@@ -177,5 +187,4 @@ No painel da Netlify, configure:
 - Adicionar o link de deploy no campo About do GitHub.
 - Expandir testes e2e para busca, favoritos, tema e quiz completo.
 - Evoluir watchlist para autenticação e banco de dados.
-- Adicionar screenshots ou GIF curto da aplicação no README.
-- Melhorar navegação por teclado da busca com setas e seleção por Enter.
+- Adicionar GIF curto demonstrando busca, favoritos e notificações.

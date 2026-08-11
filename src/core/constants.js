@@ -8,9 +8,9 @@ export const ROUTES = {
 };
 
 export const STORAGE_KEYS = {
-  WATCHLIST: 'cinerank_watchlist',
-  THEME: 'cinerank_theme',
-  HIGH_SCORE: 'cinerank_high_score',
-  LAST_SEEN_NEWS: 'cinerank_last_news',
-  SEARCH_HISTORY: 'cinerank_search_history'
+  WATCHLIST: 'reelvio_watchlist',
+  THEME: 'reelvio_theme',
+  HIGH_SCORE: 'reelvio_high_score',
+  LAST_SEEN_NEWS: 'reelvio_last_news',
+  SEARCH_HISTORY: 'reelvio_search_history'
 };
