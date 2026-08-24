@@ -31,10 +31,11 @@
   margin-top: 0.5rem;
   padding: 1rem;
   overflow-y: auto;
-  background: var(--card-bg);
-  border: 1px solid #444;
+  background: rgba(7, 17, 29, 0.98);
+  border: 1px solid rgba(191, 161, 129, 0.36);
   border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 22px 46px rgba(0, 0, 0, 0.5);
 }
 
 .notification-panel-header {

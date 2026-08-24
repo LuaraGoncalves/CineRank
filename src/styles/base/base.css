@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Poiret+One&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Funnel+Sans:wght@400;500;600;700&family=Poiret+One&display=swap');
 
 :root {
   /* --- Colors: Primitive --- */
@@ -21,7 +21,7 @@
   --card-bg: var(--color-slate-900);
 
   /* --- Typography --- */
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Funnel Sans', sans-serif;
   --font-heading: 'Poiret One', sans-serif;
 
   --text-xs: 0.75rem; /* 12px */
@@ -95,10 +95,11 @@ body.light-mode {
 }
 
 body {
+  position: relative;
   font-family: var(--font-sans);
   font-size: var(--text-base);
   background:
-    linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+    linear-gradient(180deg, rgba(5, 10, 18, 0.74), rgba(5, 10, 18, 0.96)),
     url('../../assets/images/fundo.webp') no-repeat center center fixed;
   background-size: cover;
   color: var(--text-light);
@@ -109,6 +110,44 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(6, 13, 22, 0.9), rgba(6, 13, 22, 0.34)),
+    linear-gradient(180deg, rgba(178, 32, 52, 0.12), transparent 42%);
+}
+
+body.light-mode::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.78),
+      rgba(255, 255, 255, 0.46)
+    ),
+    linear-gradient(180deg, rgba(23, 133, 130, 0.1), transparent 44%);
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 3px;
 }
 
 h1,
