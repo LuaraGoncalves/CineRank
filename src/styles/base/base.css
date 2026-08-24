@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Poiret+One&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Funnel+Sans:wght@400;500;600;700&family=Poiret+One&display=swap');
 
 :root {
   /* --- Colors: Primitive --- */
@@ -21,7 +21,7 @@
   --card-bg: var(--color-slate-900);
 
   /* --- Typography --- */
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Funnel Sans', sans-serif;
   --font-heading: 'Poiret One', sans-serif;
 
   --text-xs: 0.75rem; /* 12px */
@@ -109,6 +109,23 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 3px;
 }
 
 h1,

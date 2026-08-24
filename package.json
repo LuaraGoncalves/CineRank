@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "eslint app src tests",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
@@ -24,6 +24,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.0",
+    "impeccable": "^3.6.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "prettier": "^3.9.6"
