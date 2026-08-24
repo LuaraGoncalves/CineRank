@@ -30,3 +30,6 @@ test-results
 .env
 .env.*
 !.env.example
+
+AGENTS.md*
+CLAUDE.md*

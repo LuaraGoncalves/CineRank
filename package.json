@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint app src tests",
+    "design:check": "impeccable detect app src/styles",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
@@ -19,6 +20,7 @@
     "npm": ">=10"
   },
   "devDependencies": {
+    "@jest/globals": "^30.4.1",
     "@netlify/plugin-nextjs": "^5.15.13",
     "@playwright/test": "^1.62.1",
     "cross-env": "^7.0.3",
