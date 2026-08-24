@@ -1,9 +1,46 @@
+.dashboard-page {
+  position: relative;
+}
+
+.dashboard-hero {
+  display: grid;
+  min-height: 190px;
+  align-content: end;
+  justify-items: center;
+  margin-bottom: 1.5rem;
+  padding: 2rem 1rem 1rem;
+  text-align: center;
+}
+
+.dashboard-eyebrow {
+  margin-bottom: 0.45rem;
+  color: var(--text-light);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.84;
+}
+
+.dashboard-hero h1 {
+  margin: 0;
+  padding: 0;
+  text-shadow: 0 14px 36px rgba(0, 0, 0, 0.58);
+}
+
 /* Dashboard filters */
 .dashboard-filters {
   display: flex;
   position: relative;
   z-index: 10;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 0.75rem;
+  width: min(100%, 920px);
+  margin: 0 auto 2rem;
+  padding: 0.75rem;
+  background: rgba(5, 12, 20, 0.72);
+  border: 1px solid rgba(191, 161, 129, 0.26);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
 }

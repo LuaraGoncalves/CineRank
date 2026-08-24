@@ -158,8 +158,15 @@ export default function Dashboard({
   const years = Array.from(new Array(50), (val, index) => currentYear - index);
 
   return (
-    <section id="dashboard" aria-labelledby="dashboard-title">
-      <h1 id="dashboard-title">Reelvio</h1>
+    <section
+      id="dashboard"
+      className="dashboard-page"
+      aria-labelledby="dashboard-title"
+    >
+      <div className="dashboard-hero">
+        <p className="dashboard-eyebrow">Em alta agora</p>
+        <h1 id="dashboard-title">Reelvio</h1>
+      </div>
       <div
         className="filter-container dashboard-filters"
         role="search"
