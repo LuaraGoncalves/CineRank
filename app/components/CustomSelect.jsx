@@ -2,7 +2,14 @@
 
 import { useState, useRef, useEffect, useId } from 'react';
 
-export default function CustomSelect({ options, value, onChange, disabled }) {
+export default function CustomSelect({
+  options,
+  value,
+  onChange,
+  disabled,
+  displayLabel,
+  ariaLabel
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef(null);
@@ -27,6 +34,7 @@ export default function CustomSelect({ options, value, onChange, disabled }) {
     0
   );
   const selectedOption = options[selectedIndex] || options[0];
+  const triggerLabel = displayLabel || selectedOption?.label;
   const activeOption = options[activeIndex] || selectedOption;
   const activeOptionId = activeOption
     ? `${listboxId}-option-${activeIndex}`
@@ -126,8 +134,9 @@ export default function CustomSelect({ options, value, onChange, disabled }) {
         aria-expanded={isOpen}
         aria-controls={listboxId}
         aria-activedescendant={isOpen ? activeOptionId : undefined}
+        aria-label={ariaLabel || triggerLabel}
       >
-        <span className="custom-select-label">{selectedOption?.label}</span>
+        <span className="custom-select-label">{triggerLabel}</span>
         <svg
           className={`custom-select-chevron ${isOpen ? 'is-open' : ''}`}
           xmlns="http://www.w3.org/2000/svg"

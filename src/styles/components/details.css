@@ -16,8 +16,8 @@
   gap: 2rem;
   margin-bottom: 3rem;
   padding: 1.25rem;
-  background: rgba(5, 12, 20, 0.68);
-  border: 1px solid rgba(191, 161, 129, 0.24);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   backdrop-filter: blur(16px);
 }
@@ -68,7 +68,7 @@
 .details-section-title,
 .details-recommendations-title {
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid var(--line-subtle);
 }
 
 .details-section-title {
@@ -97,8 +97,8 @@
 
 .details-recommendation-card {
   overflow: hidden;
-  background: rgba(7, 17, 29, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface-elevated);
+  border: 1px solid var(--line-subtle);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition:
@@ -109,7 +109,7 @@
 .details-recommendation-card:hover,
 .details-recommendation-link:focus-visible .details-recommendation-card {
   transform: translateY(-4px);
-  border-color: rgba(191, 161, 129, 0.48);
+  border-color: var(--border-strong);
 }
 
 .details-recommendation-poster {

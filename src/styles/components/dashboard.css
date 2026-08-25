@@ -4,11 +4,11 @@
 
 .dashboard-hero {
   display: grid;
-  min-height: 190px;
+  min-height: 72px;
   align-content: end;
   justify-items: center;
-  margin-bottom: 1.5rem;
-  padding: 2rem 1rem 1rem;
+  margin-bottom: 0.85rem;
+  padding: 0.5rem 1rem 0.25rem;
   text-align: center;
 }
 
@@ -28,6 +28,16 @@
   text-shadow: 0 14px 36px rgba(0, 0, 0, 0.58);
 }
 
+.dashboard-results-heading {
+  width: min(100%, 1200px);
+  margin: 0 auto 1rem;
+  padding: 0 0.15rem;
+}
+
+.dashboard-results-heading .dashboard-eyebrow {
+  margin-bottom: 0;
+}
+
 /* Dashboard filters */
 .dashboard-filters {
   display: flex;
@@ -38,9 +48,9 @@
   width: min(100%, 920px);
   margin: 0 auto 2rem;
   padding: 0.75rem;
-  background: rgba(5, 12, 20, 0.72);
-  border: 1px solid rgba(191, 161, 129, 0.26);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   backdrop-filter: blur(16px);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+  box-shadow: var(--panel-shadow);
 }

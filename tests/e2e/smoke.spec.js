@@ -39,6 +39,11 @@ test('navigates through the main pages', async ({ page }) => {
 });
 
 test('toggles the visual theme', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.removeItem('reelvio_theme');
+    localStorage.removeItem('cinerank_theme');
+    localStorage.removeItem('theme');
+  });
   await page.goto('/quiz');
 
   const themeButton = page.getByRole('button', {

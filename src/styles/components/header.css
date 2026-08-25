@@ -13,11 +13,11 @@
   max-height: 350px;
   margin-top: 15px;
   overflow-y: auto;
-  background: rgba(7, 17, 29, 0.98);
-  border: 1px solid rgba(191, 161, 129, 0.36);
+  background: var(--surface-solid);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   backdrop-filter: blur(16px);
-  box-shadow: 0 22px 46px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--panel-shadow);
 }
 
 .search-results-state {
@@ -44,7 +44,7 @@
   width: 18px;
   height: 18px;
   justify-self: center;
-  border: 2px solid rgba(255, 255, 255, 0.18);
+  border: 2px solid var(--skeleton-base);
   border-top-color: var(--text-color);
   border-radius: 999px;
   animation: spin 0.8s linear infinite;
@@ -60,7 +60,7 @@
   text-align: left;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--line-subtle);
   cursor: pointer;
   transition: background 0.2s ease;
 }
@@ -68,7 +68,7 @@
 .search-result-item:hover,
 .search-result-item.active,
 .search-result-item:focus-visible {
-  background: rgba(191, 161, 129, 0.14);
+  background: color-mix(in srgb, var(--text-color) 14%, transparent);
 }
 
 .search-result-poster,
@@ -84,7 +84,7 @@
 }
 
 .search-result-poster-placeholder {
-  background: #333;
+  background: var(--skeleton-base);
 }
 
 .search-result-title {
