@@ -31,11 +31,11 @@
   margin-top: 0.5rem;
   padding: 1rem;
   overflow-y: auto;
-  background: rgba(7, 17, 29, 0.98);
-  border: 1px solid rgba(191, 161, 129, 0.36);
+  background: var(--surface-solid);
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
   backdrop-filter: blur(16px);
-  box-shadow: 0 22px 46px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--panel-shadow);
 }
 
 .notification-panel-header {
@@ -44,7 +44,7 @@
   justify-content: space-between;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid var(--line-subtle);
 }
 
 .notification-panel-title {
@@ -64,7 +64,7 @@
 }
 
 .notification-panel .feedback-state {
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text-color) 6%, transparent);
 }
 
 .notification-error-state {
@@ -85,7 +85,7 @@
 
 .notification-item {
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--line-subtle);
 }
 
 .notification-item-header {
@@ -107,8 +107,8 @@
   align-items: center;
   justify-content: center;
   padding: 4px;
-  color: #aaa;
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--text-light) 7%, transparent);
   border: 0;
   border-radius: 4px;
   cursor: pointer;
@@ -132,7 +132,7 @@
 
 .notification-meta {
   margin-bottom: 0.5rem;
-  color: #888;
+  color: var(--text-muted);
   font-size: 0.8rem;
 }
 
@@ -165,9 +165,9 @@
 
 .notification-more-button {
   padding: 6px 16px;
-  color: #aaa;
-  background: transparent;
-  border: 1px solid #555;
+  color: var(--text-light);
+  background: var(--surface-control);
+  border: 1px solid var(--border-strong);
   border-radius: 20px;
   cursor: pointer;
   font-size: 0.8rem;
@@ -178,6 +178,7 @@
 
 .notification-more-button:hover,
 .notification-more-button:focus-visible {
-  color: #fff;
-  border-color: #fff;
+  color: var(--button-fg);
+  background: var(--brand-action);
+  border-color: var(--brand-action);
 }

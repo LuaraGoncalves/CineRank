@@ -3,7 +3,6 @@ import Image from 'next/image';
 
 export default function MovieCard({ movie }) {
   const type = movie.title ? 'movie' : 'tv';
-  const typeLabel = type === 'movie' ? 'Filme' : 'Série';
   const posterPath = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : null;
@@ -29,12 +28,11 @@ export default function MovieCard({ movie }) {
             Sem imagem
           </div>
         )}
+        <span className="rating" aria-label={`Nota ${rating}`}>
+          {rating}
+        </span>
         <div className="movie-info">
-          <span className="movie-type-badge">{typeLabel}</span>
           <h3>{title}</h3>
-          <span className="rating" aria-label={`Nota ${rating}`}>
-            Nota {rating}
-          </span>
         </div>
       </div>
     </Link>

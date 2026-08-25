@@ -164,7 +164,6 @@ export default function Dashboard({
       aria-labelledby="dashboard-title"
     >
       <div className="dashboard-hero">
-        <p className="dashboard-eyebrow">Em alta agora</p>
         <h1 id="dashboard-title">Reelvio</h1>
       </div>
       <div
@@ -173,49 +172,57 @@ export default function Dashboard({
         aria-label="Filtros de conteúdo"
       >
         <CustomSelect
+          displayLabel="Filmes e séries"
+          ariaLabel="Filtrar por filmes ou séries"
           value={filters.type}
           onChange={(val) =>
             handleFilterChange({ target: { name: 'type', value: val } })
           }
           options={[
-            { value: 'all', label: 'Filmes e Séries' },
+            { value: 'all', label: 'Todos os tipos' },
             { value: 'movie', label: 'Filmes' },
             { value: 'tv', label: 'Séries' }
           ]}
         />
 
         <CustomSelect
+          displayLabel="Gêneros"
+          ariaLabel="Filtrar por gênero"
           disabled={filters.type === 'all'}
           value={filters.genre}
           onChange={(val) =>
             handleFilterChange({ target: { name: 'genre', value: val } })
           }
           options={[
-            { value: 'all', label: 'Gênero' },
+            { value: 'all', label: 'Todos os gêneros' },
             ...genres.map((g) => ({ value: g.id.toString(), label: g.name }))
           ]}
         />
 
         <CustomSelect
+          displayLabel="Ano"
+          ariaLabel="Filtrar por ano"
           disabled={filters.type === 'all'}
           value={filters.year}
           onChange={(val) =>
             handleFilterChange({ target: { name: 'year', value: val } })
           }
           options={[
-            { value: 'all', label: 'Ano' },
+            { value: 'all', label: 'Todos os anos' },
             ...years.map((y) => ({ value: y.toString(), label: y.toString() }))
           ]}
         />
 
         <CustomSelect
+          displayLabel="Classificação"
+          ariaLabel="Filtrar por classificação"
           disabled={filters.type === 'all'}
           value={filters.rating}
           onChange={(val) =>
             handleFilterChange({ target: { name: 'rating', value: val } })
           }
           options={[
-            { value: 'all', label: 'Classificação' },
+            { value: 'all', label: 'Todas' },
             { value: '8', label: '8+' },
             { value: '7', label: '7+' },
             { value: '6', label: '6+' },
@@ -224,12 +231,17 @@ export default function Dashboard({
         />
       </div>
 
+      <div className="dashboard-results-heading">
+        <p className="dashboard-eyebrow">Em alta agora</p>
+      </div>
+
       <div
         id="movie-container"
         className="movie-container"
         role="region"
         aria-label="Lista de Filmes e Séries Encontrados"
         aria-live="polite"
+        aria-busy={loading || loadingMore}
       >
         {loading ? (
           Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)

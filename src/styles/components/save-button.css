@@ -9,9 +9,9 @@
   align-items: center;
   gap: 8px;
   padding: 0.6rem 1.2rem;
-  color: var(--text-color);
-  background: var(--primary-color);
-  border: 1px solid var(--primary-color);
+  color: var(--button-fg);
+  background: var(--brand-action);
+  border: 1px solid var(--brand-action);
   border-radius: 20px;
   cursor: pointer;
   font-size: 0.9rem;
@@ -22,6 +22,12 @@
     border-color 0.2s ease;
 }
 
+.save-button:hover,
+.save-button:focus-visible {
+  background: var(--brand-action-hover);
+  border-color: var(--brand-action-hover);
+}
+
 .save-button:disabled {
   cursor: wait;
   opacity: 0.7;
@@ -29,8 +35,8 @@
 
 .save-button.is-saved {
   color: var(--text-light);
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #444;
+  background: var(--surface-control);
+  border-color: var(--border-strong);
 }
 
 .save-button-icon-saved {
@@ -44,13 +50,13 @@
   z-index: 1000;
   margin-bottom: 10px;
   padding: 8px 12px;
-  color: var(--text-color);
+  color: var(--text-light);
   font-size: 0.8rem;
   white-space: nowrap;
-  background: var(--card-bg);
-  border: 1px solid #444;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--panel-shadow);
   transform: translateX(-50%);
   animation: fadeIn 0.2s ease-out;
 }
